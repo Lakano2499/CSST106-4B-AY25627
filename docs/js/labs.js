@@ -440,7 +440,7 @@
     async function sendLab1Action(action, params = {}, loadingMessage = 'Processing Lab 1...') {
       const file = getDropzoneFile(dropzone, '#lab1-dropzone');
       if (!file) {
-        AppBridge.showToast('Please select or upload an image first for Lab 1.', 'warning');
+        AppBridge.showToast('Please upload an image or click Sample 1 / Sample 2 to test.', 'warning');
         return;
       }
 
@@ -634,7 +634,7 @@
         e.preventDefault();
         const file = getDropzoneFile(dropzone, '#lab2-dropzone');
         if (!file) {
-          AppBridge.showToast('Please upload an image for edge detection in Lab 2.', 'warning');
+          AppBridge.showToast('Please upload an image or click Sample 1 / Sample 2 to test.', 'warning');
           return;
         }
 
@@ -786,7 +786,7 @@
         e.preventDefault();
         const file = getDropzoneFile(dropzone, '#lab3-dropzone');
         if (!file) {
-          AppBridge.showToast('Please upload an image for histogram equalization in Lab 3.', 'warning');
+          AppBridge.showToast('Please upload an image or click Sample 1 / Sample 2 to test.', 'warning');
           return;
         }
 
@@ -937,7 +937,7 @@
         e.preventDefault();
         const file1 = getDropzoneFile(dropzone1, '#lab4-dropzone1') || getDropzoneFile(dropzone1, '#lab4-dropzone');
         if (!file1) {
-          AppBridge.showToast('Please upload primary Image 1 for feature detection.', 'warning');
+          AppBridge.showToast('Please upload Image 1 or click Sample 1 / Sample 2 to test.', 'warning');
           return;
         }
 
@@ -1252,7 +1252,7 @@
         e.preventDefault();
         const file = getDropzoneFile(dropzone, '#lab6-dropzone');
         if (!file) {
-          AppBridge.showToast('Please upload an image for YOLO object detection in Lab 6.', 'warning');
+          AppBridge.showToast('Please upload an image or click Sample 1 / Sample 2 to test.', 'warning');
           return;
         }
 
@@ -1431,7 +1431,7 @@
         e.preventDefault();
         const file = getDropzoneFile(dropzone, '#lab7-dropzone');
         if (!file) {
-          AppBridge.showToast('Please upload an image for segmentation analysis in Lab 7.', 'warning');
+          AppBridge.showToast('Please upload an image or click Sample 1 / Sample 2 to test.', 'warning');
           return;
         }
 

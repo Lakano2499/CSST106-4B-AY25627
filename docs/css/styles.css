@@ -585,6 +585,82 @@ button, input, select, textarea {
   display: block;
 }
 
+/* Quick Sample Picker Controls */
+.sample-picker {
+  margin-top: 10px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sample-picker-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.sample-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.btn-sample {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text-heading);
+  font-size: 0.76rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: left;
+  user-select: none;
+}
+
+.btn-sample:hover {
+  border-color: var(--brand-primary);
+  background-color: var(--brand-tint);
+  color: var(--brand-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.btn-sample:active {
+  transform: translateY(0);
+}
+
+.btn-sample img {
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+}
+
+[data-theme="dark"] .btn-sample {
+  background-color: var(--bg-subsurface);
+  border-color: var(--border-strong);
+  color: var(--text-body);
+}
+
+[data-theme="dark"] .btn-sample:hover {
+  background-color: var(--bg-subsurface-alt);
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+}
+
 /* Parameter Controls */
 .controls-group {
   display: flex;

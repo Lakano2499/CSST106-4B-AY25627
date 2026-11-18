@@ -284,7 +284,43 @@ Gerhard Schroeder       0.81      0.79      0.80        28
 
       this.currentFile = null;
       if (this.el) {
+        this.el.__dropzone = this;
         this.init();
+      }
+    }
+
+    async loadSample(sampleNum = 1) {
+      const filename = sampleNum === 2 ? 'sample2.jpg' : 'sample1.jpg';
+      const url = `./assets/${filename}`;
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const blob = await response.blob();
+        const file = new File([blob], filename, { type: 'image/jpeg' });
+        this.handleFile(file);
+        showToast(`Loaded Sample ${sampleNum} (${filename}) into workspace.`, 'success', 2500);
+      } catch (err) {
+        // Fallback using Canvas
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          const c = document.createElement('canvas');
+          c.width = img.naturalWidth || img.width;
+          c.height = img.naturalHeight || img.height;
+          const ctx = c.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          c.toBlob((blob) => {
+            if (blob) {
+              const file = new File([blob], filename, { type: 'image/jpeg' });
+              this.handleFile(file);
+              showToast(`Loaded Sample ${sampleNum} (${filename}) into workspace.`, 'success', 2500);
+            }
+          }, 'image/jpeg');
+        };
+        img.onerror = () => {
+          showToast(`Failed to load ${filename}`, 'error');
+        };
+        img.src = url;
       }
     }
 
@@ -391,6 +427,14 @@ Gerhard Schroeder       0.81      0.79      0.80        28
         this.previewEl.style.display = 'none';
       }
     }
+  }
+
+  // Global helper to load Sample 1 or Sample 2 into any DropZone
+  async function loadSampleImage(targetSelector, sampleNum = 1) {
+    const el = typeof targetSelector === 'string' ? document.querySelector(targetSelector) : targetSelector;
+    if (!el) return;
+    const dz = el.__dropzone || new DropZone(el);
+    await dz.loadSample(sampleNum);
   }
 
   // =========================================================================
@@ -1025,6 +1069,7 @@ Gerhard Schroeder       0.81      0.79      0.80        28
   // Expose global methods
   window.App = {
     DropZone,
+    loadSampleImage,
     showToast,
     showLoading,
     hideLoading,
@@ -1042,6 +1087,7 @@ Gerhard Schroeder       0.81      0.79      0.80        28
     IS_GITHUB_PAGES
   };
 
+  window.loadSampleImage = loadSampleImage;
   window.switchLab = switchLab;
   window.downloadLabResults = downloadLabResults;
   window.toggleTheme = toggleTheme;
