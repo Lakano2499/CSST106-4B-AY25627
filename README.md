@@ -6,18 +6,6 @@ Built with **Node.js (Express)** for the server/UI and **Python 3.12** for real-
 
 ---
 
-## 🎨 UI/UX Architecture (Clean White Academic Theme)
-- **Top Sticky Navigation Bar (`64px`):** Fixed header with logo, course code pill (`CSST106`), quick-jump dropdown (`01` to `07`), student badge (`Aeron Jhed | BSCS-4B`), and GitHub link.
-- **Hero & Curriculum Metric Split Section (65% / 35%):**
-  - **Left:** Course compilation header, high-level description, and technical stack badges.
-  - **Right:** 2×2 metric grid displaying **07** Total Experiments, **07** Interactive Modules, **100%** UI Integration, and pipeline status.
-- **Search & Category Filter Bar:** Real-time search by keyword/algorithm + category pills (`All`, `Image Processing 01–03`, `Feature & Dimensionality 04–05`, `Detection & Segmentation 06–07`), plus `Expand All` and `Collapse All` triggers.
-- **Accordion Lab Cards (`01` to `07`):** Wide flat white cards with pastel numbered badges (`01`–`07`), status pills, and smooth expansion into a **2-Pane Lab Workspace**:
-  - **Left Control Panel (32%):** File dropzone, interactive sliders with live numeric badges, and primary `Run Algorithm` buttons.
-  - **Right Output Canvas (68%):** Side-by-side output grids, Matplotlib distribution histograms, quantitative metric cards, a `Download Result` button, and a built-in **Lab Theory & Report Answers** reference panel for hard-copy report submission.
-
----
-
 ## 🔬 Compilation of Laboratory Experiments
 
 | Lab | Topic | Technologies & Core Algorithms |
