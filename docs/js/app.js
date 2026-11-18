@@ -948,7 +948,20 @@ Gerhard Schroeder       0.81      0.79      0.80        28
 
   function downloadQACompilation() {
     const sel = document.getElementById('qa-format-select');
-    const format = sel ? sel.value : 'md';
+    const format = sel ? sel.value : 'docx';
+
+    // Direct download of the authentic CSST106 Laboratory QA Word Document
+    if (format === 'docx' || format === 'doc') {
+      const a = document.createElement('a');
+      a.href = './assets/CSST106_Laboratory_QA_Compilation.docx';
+      a.download = 'CSST106_Laboratory_QA_Compilation.docx';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast('Downloaded CSST106_Laboratory_QA_Compilation.docx successfully!', 'success');
+      return;
+    }
+
     let content = '';
     let mimeType = 'text/plain;charset=utf-8';
     let filename = `CSST106_Laboratory_QA_Compilation.${format}`;
@@ -962,9 +975,6 @@ Gerhard Schroeder       0.81      0.79      0.80        28
     } else if (format === 'html') {
       content = generateQAHTML();
       mimeType = 'text/html;charset=utf-8';
-    } else if (format === 'doc') {
-      content = generateQADoc();
-      mimeType = 'application/msword;charset=utf-8';
     } else if (format === 'json') {
       content = JSON.stringify({
         course: "CSST106: Perception & Computer Vision",
