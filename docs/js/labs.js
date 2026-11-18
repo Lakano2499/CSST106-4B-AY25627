@@ -523,6 +523,18 @@
           imagesToRender.push(data.grayscale_image || data.grayscale);
           labelsToRender.push('Grayscale Image');
         }
+        if (data.cropped_image) {
+          imagesToRender.push(data.cropped_image);
+          labelsToRender.push('Cropped Region (ROI)');
+        }
+        if (data.resized_image) {
+          imagesToRender.push(data.resized_image);
+          labelsToRender.push('Resized Image');
+        }
+        if (data.rotated_image) {
+          imagesToRender.push(data.rotated_image);
+          labelsToRender.push('Rotated Image');
+        }
       } else if (action === 'crop') {
         const cropped = data.cropped_image || data.result_image || data.image;
         if (cropped) {

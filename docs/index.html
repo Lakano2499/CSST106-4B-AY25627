@@ -1142,6 +1142,31 @@
 
   </main>
 
+  <!-- Client-Side Computer Vision & Deep Learning CDN Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3"></script>
+
+  <!-- OpenCV.js 4.8.0 with onOpenCvReady Initialization Handler -->
+  <script>
+    window.isOpenCvReady = false;
+    window.cvReadyPromise = new Promise(function(resolve) {
+      window.onOpenCvReady = function() {
+        if (typeof cv !== 'undefined') {
+          if (cv.Mat) {
+            window.isOpenCvReady = true;
+            resolve(cv);
+          } else {
+            cv['onRuntimeInitialized'] = function() {
+              window.isOpenCvReady = true;
+              resolve(cv);
+            };
+          }
+        }
+      };
+    });
+  </script>
+  <script async src="https://docs.opencv.org/4.8.0/opencv.js" onload="if (window.onOpenCvReady) window.onOpenCvReady();" type="text/javascript"></script>
+
   <!-- Scripts -->
   <script src="./js/app.js"></script>
   <script src="./js/labs.js"></script>
