@@ -239,6 +239,15 @@
 
     const grid = document.createElement('div');
     grid.className = 'results-grid';
+    if (imageList.length === 1) {
+      grid.classList.add('single-image');
+    } else if (imageList.length === 2) {
+      grid.classList.add('cols-2');
+    } else if (imageList.length === 3) {
+      grid.classList.add('cols-3');
+    } else if (imageList.length >= 4) {
+      grid.classList.add('cols-4');
+    }
 
     imageList.forEach(item => {
       let customImgEl = AppBridge.createImageElement(formatImageSrc(item.src), item.label);
@@ -886,37 +895,6 @@
         resultsContainer.appendChild(plotSection);
       }
 
-      // 3. Color Equalized Result & Processed Images Grid
-      const images = [];
-      const labels = [];
-
-      if (data.original_image || data.images?.original) {
-        images.push(data.original_image || data.images?.original);
-        labels.push('Original Image');
-      }
-      if (data.color_equalized || data.color_result || data.images?.color_equalized) {
-        images.push(data.color_equalized || data.color_result || data.images?.color_equalized);
-        labels.push('Color Equalized (YUV / HSV)');
-      }
-      if (data.clahe_image || data.images?.clahe) {
-        images.push(data.clahe_image || data.images?.clahe);
-        labels.push('CLAHE Result');
-      }
-      if (data.equalized_image || data.images?.global_equalized) {
-        images.push(data.equalized_image || data.images?.global_equalized);
-        labels.push('Global Equalization');
-      }
-
-      if (images.length > 0) {
-        const imgSection = document.createElement('div');
-        imgSection.className = 'result-section';
-        imgSection.innerHTML = '<h4 class="section-subtitle">Processed & Equalized Images</h4>';
-        const imgWrap = document.createElement('div');
-        renderResultImages(imgWrap, images, labels);
-        imgSection.appendChild(imgWrap);
-        resultsContainer.appendChild(imgSection);
-      }
-
       resultsContainer.classList.add('visible');
       resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
@@ -1011,20 +989,36 @@
 
       if (Array.isArray(comparisonData)) {
         comparisonData.forEach(item => {
+          const timeVal = item.time ?? item.time_ms ?? item.execution_time_ms ?? item.execution_time;
+          let timeDisplay = '-';
+          if (typeof timeVal === 'number') {
+            timeDisplay = `${timeVal.toFixed(2)} ms`;
+          } else if (timeVal) {
+            timeDisplay = String(timeVal).includes('ms') ? String(timeVal) : `${timeVal} ms`;
+          }
+
           rows.push([
             item.name || item.detector || 'Unknown',
             (item.keypoints || item.keypoints_count || 0).toLocaleString(),
-            item.descriptor_dim || item.dimensions || (item.name?.toLowerCase().includes('orb') ? '32 (binary)' : '128 (float)'),
-            typeof item.time === 'number' ? `${item.time.toFixed(2)} ms` : `${item.time || '-'}`
+            item.descriptor_dim || item.dimensions || item.descriptor_dims || (item.name?.toLowerCase().includes('orb') ? '32 (binary)' : '128 (float)'),
+            timeDisplay
           ]);
         });
       } else if (typeof comparisonData === 'object' && comparisonData !== null) {
         Object.entries(comparisonData).forEach(([det, info]) => {
+          const timeVal = info.time ?? info.time_ms ?? info.execution_time_ms ?? info.execution_time;
+          let timeDisplay = '-';
+          if (typeof timeVal === 'number') {
+            timeDisplay = `${timeVal.toFixed(2)} ms`;
+          } else if (timeVal) {
+            timeDisplay = String(timeVal).includes('ms') ? String(timeVal) : `${timeVal} ms`;
+          }
+
           rows.push([
             det.toUpperCase(),
             (info.keypoints || info.count || 0).toLocaleString(),
-            info.descriptor_dim || info.dimension || '-',
-            typeof info.time === 'number' ? `${info.time.toFixed(2)} ms` : `${info.time || '-'}`
+            info.descriptor_dim || info.dimension || info.descriptor_dims || '-',
+            timeDisplay
           ]);
         });
       }
@@ -1526,40 +1520,6 @@
 
         plotSection.appendChild(plotImg);
         resultsContainer.appendChild(plotSection);
-      }
-
-      // 3. Individual Segmented Maps (if available)
-      const images = data.images || {
-        original: data.original_image || data.original,
-        threshold: data.threshold_image || data.threshold,
-        adaptive: data.adaptive_image || data.adaptive,
-        watershed: data.watershed_image || data.watershed,
-        contours: data.contours_image || data.contours,
-        semantic: data.semantic_image || data.semantic
-      };
-
-      const validImages = {};
-      const labels = {
-        original: 'Original Image',
-        threshold: 'Otsu Global Thresholding',
-        adaptive: 'Adaptive Thresholding',
-        watershed: 'Watershed Markers & Basins',
-        contours: 'Extracted Contours',
-        semantic: 'Deep Learning Semantic Mask'
-      };
-
-      Object.entries(images).forEach(([k, v]) => {
-        if (v) validImages[k] = v;
-      });
-
-      if (Object.keys(validImages).length > 0) {
-        const imgSection = document.createElement('div');
-        imgSection.className = 'result-section';
-        imgSection.innerHTML = '<h4 class="section-subtitle">Individual Segmentation Layers</h4>';
-        const imgWrap = document.createElement('div');
-        renderResultImages(imgWrap, validImages, labels);
-        imgSection.appendChild(imgWrap);
-        resultsContainer.appendChild(imgSection);
       }
 
       resultsContainer.classList.add('visible');

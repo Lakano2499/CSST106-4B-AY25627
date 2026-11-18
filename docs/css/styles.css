@@ -927,25 +927,45 @@ select:focus, input[type="number"]:focus, input[type="text"]:focus {
 
 .results-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
 .results-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
-.results-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+.results-grid.cols-4 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+
+/* Keep single images centered and prevent them from stretching across the entire screen */
+.results-grid.single-image,
+.results-grid:has(> :only-child) {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.results-grid.single-image .result-card,
+.results-grid.single-image .result-image-card,
+.results-grid:has(> :only-child) > .result-card,
+.results-grid:has(> :only-child) > .result-image-card {
+  max-width: 520px;
+  width: 100%;
+}
 
 .result-section, .result-card, .result-image-card, .plot-card, .image-wrapper {
   min-width: 0;
   max-width: 100%;
 }
 
-.result-card {
+.result-card,
+.result-image-card {
   background-color: var(--bg-subsurface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 12px;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 10px;
   box-shadow: var(--shadow-subtle);
+  overflow: hidden;
 }
 
 .result-card-header {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -969,7 +989,7 @@ select:focus, input[type="number"]:focus, input[type="text"]:focus {
   border-radius: var(--radius-sm);
 }
 
-/* All generated output images across Labs 01 to 07 */
+/* All generated output images across Labs 01 to 07 — strictly constrained */
 .result-img,
 .result-plot,
 .result-plot-img,
@@ -979,24 +999,78 @@ select:focus, input[type="number"]:focus, input[type="text"]:focus {
 .image-wrapper img,
 .plot-card img {
   max-width: 100%;
+  max-height: 400px;
   height: auto;
   object-fit: contain;
   display: block;
 }
 
 .result-img {
-  width: 100%;
+  width: auto;
+  max-width: 100%;
+  max-height: 380px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background-color: #FFFFFF;
+  margin: 0 auto;
 }
 
 .result-plot,
 .result-plot-img {
-  width: 100%;
+  width: auto;
+  max-width: 100%;
+  max-height: 460px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   background-color: #FFFFFF;
+  margin: 0 auto;
+}
+
+/* =========================================================================
+   Full Multi-Panel Plots (Lab 03 & Lab 07) — Unrestricted Sizing
+   Remove height & size caps for large multi-panel comparative figures
+   ========================================================================= */
+#lab3 .result-img,
+#lab3 .result-plot,
+#lab3 .result-plot-img,
+#lab3 .results-container img,
+#lab3 .result-section img,
+#lab3-results .result-img,
+#lab3-results .result-plot,
+#lab3-results .result-plot-img,
+#lab3-results img,
+#lab7 .result-img,
+#lab7 .result-plot,
+#lab7 .result-plot-img,
+#lab7 .results-container img,
+#lab7 .result-section img,
+#lab7-results .result-img,
+#lab7-results .result-plot,
+#lab7-results .result-plot-img,
+#lab7-results img {
+  max-height: none !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  height: auto !important;
+}
+
+#lab3 .results-grid.single-image .result-card,
+#lab3 .results-grid.single-image .result-image-card,
+#lab3 .results-grid:has(> :only-child) > .result-card,
+#lab3 .results-grid:has(> :only-child) > .result-image-card,
+#lab3-results .results-grid.single-image .result-card,
+#lab3-results .results-grid.single-image .result-image-card,
+#lab3-results .results-grid:has(> :only-child) > .result-card,
+#lab3-results .results-grid:has(> :only-child) > .result-image-card,
+#lab7 .results-grid.single-image .result-card,
+#lab7 .results-grid.single-image .result-image-card,
+#lab7 .results-grid:has(> :only-child) > .result-card,
+#lab7 .results-grid:has(> :only-child) > .result-image-card,
+#lab7-results .results-grid.single-image .result-card,
+#lab7-results .results-grid.single-image .result-image-card,
+#lab7-results .results-grid:has(> :only-child) > .result-card,
+#lab7-results .results-grid:has(> :only-child) > .result-image-card {
+  max-width: 100% !important;
 }
 
 /* Stats / Property Cards */

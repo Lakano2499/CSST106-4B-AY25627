@@ -101,17 +101,39 @@
       return {
         success: true,
         method: 'ORB',
-        keypoints_count: 500,
-        descriptor_dim: 32,
-        matches_count: 248,
-        execution_time_ms: 18.4,
+        keypoints_count: 150,
+        descriptor_dim: '32 (binary)',
+        matches_count: 42,
+        execution_time_ms: 8.4,
         metrics: {
           algorithm: "ORB (Oriented FAST and Rotated BRIEF)",
-          keypoints_detected: 500,
-          descriptor_dimension: 32,
-          good_matches: 248,
+          keypoints_detected: 150,
+          descriptor_dimension: "32 (binary)",
+          good_matches: 42,
           matching_distance: "Hamming"
         },
+        comparison: [
+          {
+            name: "ORB",
+            keypoints: 150,
+            keypoints_count: 150,
+            descriptor_dim: "32 (binary)",
+            descriptor_dims: 32,
+            time: 8.4,
+            time_ms: 8.4,
+            execution_time: "8.40 ms"
+          },
+          {
+            name: "SIFT",
+            keypoints: 480,
+            keypoints_count: 480,
+            descriptor_dim: "128 (float)",
+            descriptor_dims: 128,
+            time: 42.1,
+            time_ms: 42.1,
+            execution_time: "42.10 ms"
+          }
+        ],
         outputs: {
           keypoints: './assets/sample_results/keypoints.png',
           matches: './assets/sample_results/matches.png'

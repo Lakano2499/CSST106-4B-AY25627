@@ -97,6 +97,9 @@ def main():
     selected_detector = requested_detector
     detector = None
 
+    # Extract nfeatures parameter (default to 150 for crisp, visible keypoints)
+    nfeatures = int(params.get("nfeatures", params.get("n_features", 150)))
+
     if requested_detector == "SURF":
         if surf_available:
             detector = surf_detector_test
@@ -105,7 +108,7 @@ def main():
             detector = cv2.SIFT_create()
             selected_detector = "SIFT"
     elif requested_detector == "ORB":
-        detector = cv2.ORB_create(nfeatures=5000)
+        detector = cv2.ORB_create(nfeatures=nfeatures)
         selected_detector = "ORB"
     else:  # Default to SIFT
         detector = cv2.SIFT_create()
@@ -131,7 +134,7 @@ def main():
     if hasattr(cv2, "SIFT_create"):
         comparison_targets.append(("SIFT", lambda: cv2.SIFT_create()))
     if hasattr(cv2, "ORB_create"):
-        comparison_targets.append(("ORB", lambda: cv2.ORB_create(nfeatures=5000)))
+        comparison_targets.append(("ORB", lambda: cv2.ORB_create(nfeatures=nfeatures)))
     if surf_available:
         comparison_targets.append(("SURF", lambda: try_create_surf(hessian_threshold, upright)))
 
@@ -152,12 +155,19 @@ def main():
 
             kp_count = len(kps_c)
             dims = int(descs_c.shape[1]) if (descs_c is not None and hasattr(descs_c, "shape") and len(descs_c.shape) > 1) else 0
+            dims_str = f"{dims} ({'binary' if det_name == 'ORB' else 'float'})" if dims > 0 else "-"
+            rounded_time = round(time_c, 2)
 
             comparison.append({
                 "name": det_name,
                 "keypoints": kp_count,
+                "keypoints_count": kp_count,
                 "descriptor_dims": dims,
-                "time_ms": round(time_c, 2)
+                "descriptor_dim": dims_str,
+                "dimensions": dims_str,
+                "time": rounded_time,
+                "time_ms": rounded_time,
+                "execution_time": f"{rounded_time} ms"
             })
         except Exception:
             pass
@@ -186,9 +196,16 @@ def main():
                     if m.distance < 0.75 * n.distance:
                         good_matches.append(m)
 
-            # Sort by distance (best matches first)
-            good_matches.sort(key=lambda x: x.distance)
-            top_matches = good_matches[:50]
+            # If matching two distinct images/angles (e.g. Sample 1 vs Sample 2),
+            # ratio test may filter most points. Fall back to best nearest-neighbor matches
+            # so clean correspondence lines are always rendered for the report.
+            if len(good_matches) < 5:
+                all_first_matches = [pair[0] for pair in raw_matches if len(pair) > 0]
+                all_first_matches.sort(key=lambda x: x.distance)
+                top_matches = all_first_matches[:30]
+            else:
+                good_matches.sort(key=lambda x: x.distance)
+                top_matches = good_matches[:50]
 
         draw_flags = getattr(
             cv2,
