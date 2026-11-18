@@ -1,0 +1,54 @@
+
+College of Computer Studies
+Laboratory Exercise No. 1
+
+Topic:
+Image Manipulation
+Week No.
+1 - 2
+Course Code:
+CSST106
+Term:
+1st Semester
+Course Title:
+Perception and Computer Vision
+Academic Year:
+2026-2027
+
+ Laboratory Activity: Introduction to Computer Vision
+Objective:
+To familiarize students with the concept of computer vision, understand how digital images are represented and manipulated, and perform basic image operations using OpenCV.
+Materials Needed:
+Computer with Python and OpenCV library installed
+Sample images (color and grayscale)
+
+Activity Steps:
+Part 1: Understanding Digital Images
+Introduction (Brief Lecture)
+Explain what an image is in computer vision (a 2D/3D array of pixel values).
+Discuss color spaces: grayscale vs. color images.
+Introduce image representation (pixel intensity, channels, resolution).
+Hands-on Exercise: Load and Explore an Image
+Load a color image using OpenCV (cv2.imread).
+Display the image (cv2.imshow) and print its shape (img.shape).
+Identify the dimensions (height, width, channels) and explain the BGR color ordering.
+Convert the image to grayscale and display the grayscale image.
+Explore Image Properties
+Examine pixel values at specific coordinates.
+Change a pixel’s color to a new value and observe the change.
+
+Part 2: Basic Image Operations
+Image Manipulation
+Crop a region of interest (ROI) from the image.
+Resize the image to a smaller or larger dimension.
+Rotate the image by 90 degrees.
+Summary Discussion
+How images are digitally represented and manipulated.
+The significance of color channels and pixel values.
+Real-life applications of computer vision involving image processing.
+
+Activities to be passed on a Hardcopy:
+Make a short report describing the steps performed, what was learned about image representation and manipulation.
+Screenshots of original, grayscale, and manipulated images.
+
+This introduction activity provides a hands-on understanding of fundamental concepts in computer vision and prepares students for more advanced topics like feature extraction and object detection.

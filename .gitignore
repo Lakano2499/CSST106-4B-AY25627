@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Python cache & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+.venv/
+venv/
+env/
+
+# Runtime directories (preserve directory with .gitkeep)
+uploads/*
+!uploads/.gitkeep
+outputs/*
+!outputs/.gitkeep
+cache/*
+!cache/.gitkeep
+
+# Deep Learning weights (downloaded on demand)
+*.pt
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

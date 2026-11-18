@@ -1,0 +1,69 @@
+
+College of Computer Studies
+Laboratory Exercise No. 3
+
+Topic:
+Histogram Equalization and Contrast Adjustment in Computer Vision
+Week No.
+4 – 5
+Course Code:
+CSST106
+Term:
+1st Semester
+Course Title:
+Perception and Computer Vision
+Academic Year:
+2026-2027
+
+Lab Activity: Histogram Equalization and Contrast Adjustment in Computer Vision
+Objective
+Understand and implement histogram equalization to enhance image contrast.
+Perform global and adaptive histogram equalization to improve image quality.
+Apply contrast adjustment techniques and analyze their impact on image visualization.
+
+Background
+Histogram equalization is a technique used in image processing to improve contrast by redistributing pixel intensity values over the entire range. It enables better visibility of details in images with poor contrast. Contrast adjustment modifies the brightness and contrast of an image to highlight features for further computer vision tasks. This lab involves using OpenCV and Python for practical implementation.
+
+Materials Required
+Computer with Python installed
+OpenCV, NumPy, and Matplotlib libraries installed
+Sample images with varying contrast conditions
+
+Procedure
+Part 1: Histogram Equalization
+
+Load an image: Read a grayscale or color image.
+Convert to Grayscale (if needed): Convert color images to grayscale.
+Calculate Histogram: Compute the histogram of the input image.
+Apply Histogram Equalization:
+Use built-in functions like cv2.equalizeHist() for grayscale images.
+For color images, apply equalization on the luminance channel in the YUV or HSV color space.
+Display Results:
+Show the original and equalized images side by side.
+Plot histograms before and after equalization to observe changes.
+
+Part 2: Contrast Adjustment
+Linear Contrast Adjustment:
+Implement contrast stretching by scaling pixel values.
+Adaptive Histogram Equalization (CLAHE):
+Apply CLAHE using OpenCV’s cv2.createCLAHE() function.
+Compare results with standard histogram equalization.
+Visualize:
+Display the original image, globally equalized image, and CLAHE result.
+Plot histograms for each version.
+
+Part 3: Create a python code with regards to histogram equalization.
+
+Part 4: Observations
+Compare the visibility of details and overall image contrast.
+Discuss differences between standard histogram equalization and CLAHE.
+Note any amplification of noise or artifacts.
+
+Question to Answer:
+What is histogram equalization?
+Why do we need histogram equalization?
+How does histogram equalization work?
+How does CLAHE work?
+What is the possible real-world application for histogram equalization?
+
+Conclusion:

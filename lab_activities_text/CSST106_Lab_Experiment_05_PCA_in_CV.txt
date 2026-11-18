@@ -1,0 +1,180 @@
+
+College of Computer Studies
+Laboratory Exercise No. 5
+
+Topic:
+PCA
+Week No.
+7 - 8
+Course Code:
+CSST106
+Term:
+1st Semester
+Course Title:
+Computer Vision and Perception
+Academic Year:
+2026-2027
+
+Module: Dimensionality Reduction and Feature Extraction
+Experiment: Facial Recognition using Principal Component Analysis (Eigenfaces)
+1. Introduction and Theory
+In computer vision, raw image data is highly dimensional. A simple 100x100 pixel grayscale image represents a point in a 10,000-dimensional space. Processing data in such high dimensions leads to the "curse of dimensionality," making algorithms computationally expensive and prone to overfitting.
+Principal Component Analysis (PCA) is an unsupervised mathematical procedure that uses an orthogonal transformation to convert a set of observations of possibly correlated variables into a set of values of linearly uncorrelated variables called principal components.
+When applied to facial images, these principal components represent the statistical variations among the faces in the dataset. Because they look like ghostly faces, they are famously termed "Eigenfaces." Any human face can be approximated as a weighted linear combination of these base Eigenfaces.
+2. Learning Objectives
+By the end of this laboratory activity, students will be able to:
+Load, flatten, and preprocess high-dimensional image data for mathematical modeling.
+Apply PCA to extract the most significant variance features (Eigenfaces) from a dataset.
+Quantify the trade-off between the number of principal components and information retention (Cumulative Explained Variance).
+Implement a Support Vector Machine (SVM) classifier to recognize individuals using only their reduced-dimensionality PCA projections.
+3. Prerequisites and Environment
+Ensure your Python environment has the following libraries installed:
+numpy (for matrix operations)
+matplotlib (for visualization)
+scikit-learn (for dataset retrieval, PCA, and classification)
+
+4. Laboratory Tasks
+Task 1: Data Acquisition and Preprocessing
+We will use the Labeled Faces in the Wild (LFW) dataset. To ensure our model has enough data to learn individual features, we will only extract individuals who have at least 70 images in the dataset.
+Instructions: Run the following starter code. Inspect the shape of the data arrays.
+
+Note: X represents our flattened images (features), and y represents the integer labels corresponding to the target names.
+Python
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import fetch_lfw_people
+from sklearn.model_selection import train_test_split
+
+# 1. Fetch dataset
+print("Downloading LFW dataset (this may take a moment)...")
+lfw_people = fetch_lfw_people(min_faces_per_person=70, resize=0.4)
+
+# 2. Extract image dimensions and data
+n_samples, h, w = lfw_people.images.shape
+X = lfw_people.data
+y = lfw_people.target
+target_names = lfw_people.target_names
+n_classes = target_names.shape[0]
+
+print(f"Total dataset size:")
+print(f"n_samples: {n_samples}")
+print(f"n_features: {X.shape[1]} ({h}x{w} pixels)")
+print(f"n_classes: {n_classes}")
+
+# 3. Split into training and testing sets (80% train, 20% test)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+Task 2: Computing the Principal Components
+Our raw images have h×w features (approx. 1850 dimensions). We want to reduce this to n_components while retaining the core facial structures.
+Instructions:
+Initialize a PCA object from sklearn.decomposition. Set n_components=150, svd_solver='randomized', and whiten=True.
+Fit the PCA model only on the training data (X_train).
+Transform both X_train and X_test into the new reduced dimensional space.
+Python
+from sklearn.decomposition import PCA
+import time
+n_components = 150
+
+print(f"Extracting the top {n_components} eigenfaces from {X_train.shape[0]} faces...")
+t0 = time.time()
+
+# TODO: Initialize and fit the PCA model here
+# pca = ...
+
+print(f"Done in {time.time() - t0:.3f}s")
+
+# TODO: Transform X_train and X_test
+# X_train_pca = ...
+# X_test_pca = ...
+
+Task 3: Visualizing the Eigenfaces
+The components extracted by PCA are mathematical vectors, but because they are derived from images, we can reshape them back into 2D grids and view them as images.
+Instructions:
+Extract the components_ attribute from your fitted PCA model
+Reshape these components back to the original image dimensions (h, w).
+Use the provided plotting function to visualize the first 12 Eigenfaces.
+Python
+# TODO: Extract and reshape the eigenfaces
+# eigenfaces = pca.components_.reshape((n_components, h, w))
+
+def plot_gallery(images, titles, h, w, n_row=3, n_col=4):
+    """Helper function to plot a gallery of portraits"""
+    plt.figure(figsize=(1.8 * n_col, 2.4 * n_row))
+    plt.subplots_adjust(bottom=0, left=.01, right=.99, top=.90, hspace=.35)
+    for i in range(n_row * n_col):
+        plt.subplot(n_row, n_col, i + 1)
+        plt.imshow(images[i], cmap=plt.cm.gray)
+        plt.title(titles[i], size=12)
+        plt.xticks(())
+        plt.yticks(())
+    plt.show()
+
+# TODO: Plot the eigenfaces
+# eigenface_titles = [f"eigenface {i}" for i in range(eigenfaces.shape[0])]
+# plot_gallery(eigenfaces, eigenface_titles, h, w)
+
+Task 4: Face Recognition in the Reduced Space
+Instead of training a model on the 1,850 raw pixel values, we will train a Support Vector Machine (SVM) on the 150 PCA weights.
+Instructions:
+Train an SVM classifier (sklearn.svm.SVC) on the reduced training data (X_train_pca, y_train).
+Predict the identities of the test set (X_test_pca).
+Generate a classification report to evaluate precision, recall, and F1-score.
+
+Python
+from sklearn.svm import SVC
+from sklearn.metrics import classification_report
+
+print("Fitting the classifier to the training set")
+t0 = time.time()
+
+# TODO: Initialize an SVM with kernel='rbf' and class_weight='balanced'. Fit it to the PCA training data.
+# clf = ...
+
+print(f"Done in {time.time() - t0:.3f}s")
+
+print("Predicting people's names on the test set")
+# TODO: Predict using X_test_pca
+# y_pred = ...
+
+# TODO: Print the classification report
+# print(classification_report(y_test, y_pred, target_names=target_names))
+
+5. Post-Lab Analysis and Deliverables
+To complete this laboratory, submit your commented Jupyter Notebook/Python script along with a PDF report answering the following questions:
+Dimensionality vs. Variance: Add code to plot the Cumulative Explained Variance (pca.explained_variance_ratio_.cumsum()) against the number of components. How many components are required to retain 90% of the variance in the dataset?
+Visual Interpretation: Look at the first 3 Eigenfaces plotted in Task 3. What global facial features do they seem to be capturing (e.g., lighting direction, jawline, eye placement)? How do they differ from the last 3 Eigenfaces in your 150-component set?
+The Importance of Whitening: In Task 2, we set whiten=True. Read the scikit-learn documentation for PCA. What does whitening do to the projected data mathematically, and why is it highly beneficial before feeding the data into an SVM?
+Failure Analysis: Plot a few faces from X_test where your SVM made an incorrect prediction. Based on the visual evidence (e.g., lighting, angle, accessories), formulate a hypothesis on why the Eigenface approach failed for these specific images.
+Evaluation Rubric
+Criteria
+4 (Excellent)
+3 (Proficient)
+2 (Developing)
+1 (Beginning)
+Code Implementation
+Code is complete, bug-free, heavily commented, and uses optimal parameters.
+Code runs correctly but lacks minor comments or formatting.
+Code has minor bugs or incomplete implementations.
+Code fails to execute core tasks.
+Variance Analysis (Q1)
+Accurately generates the plot and correctly identifies the 90% threshold.
+Plot is generated but threshold identification is slightly off.
+Plot is incomplete or axis labels are missing.
+Missing plot and analysis.
+Conceptual Grasp (Q2 & Q3)
+Deep, articulate understanding of eigenvectors and mathematical whitening.
+Good understanding, though explanations lack technical depth.
+Surface-level answers relying on direct quotes from documentation.
+Answers are factually incorrect.
+Failure Analysis (Q4)
+Extracts failed predictions programmatically; provides insightful, computer-vision-based hypotheses.
+Identifies failures but hypotheses are general (e.g., "bad image").
+Attempts to identify failures manually; weak analysis.
+Did not perform failure analysis.
+
+Follow-up questions:
+Why is dimensionality reduction important in computer vision?
+What is the difference between the first principal component and the second principal component?
+If PCA reduces an image from 1,000 features to 100 components, what information might be lost?
+How can PCA be applied to face recognition?
+Why should image features generally be centered before applying PCA?

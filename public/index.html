@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#FFFFFF" id="meta-theme-color">
+  <title>VISION LABS — CSST106 Computer Vision Laboratory</title>
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome 6 Free -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+
+  <!-- Clean Minimalist Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Loading Overlay with Cancel Action -->
+  <div id="loading-overlay" class="loading-overlay" role="dialog" aria-modal="true" aria-label="Loading">
+    <div class="loading-card">
+      <div class="loading-spinner"></div>
+      <div id="loading-text" class="loading-text">Processing Computer Vision Algorithm...</div>
+      <div class="loading-subtext">Executing Python worker via child_process</div>
+      <button type="button" id="btn-cancel-loading" class="btn-cancel-loading" onclick="promptCancelAnalysis()" aria-label="Cancel running task">
+        <i class="fa-solid fa-ban"></i> Cancel Analysis
+      </button>
+    </div>
+  </div>
+
+  <!-- Cancel Confirmation Dialog Modal (Asks before cancelling) -->
+  <div id="cancel-confirm-modal" class="confirm-modal-backdrop" style="display: none;" role="alertdialog" aria-modal="true" aria-labelledby="confirm-modal-title">
+    <div class="confirm-modal-box">
+      <div class="confirm-modal-icon">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3 id="confirm-modal-title" class="confirm-modal-title">Cancel Analysis?</h3>
+      <p class="confirm-modal-desc">Are you sure you want to cancel the currently executing Python task? Any in-progress computations will be halted.</p>
+      <div class="confirm-modal-actions">
+        <button type="button" class="btn-modal-back" onclick="dismissCancelModal()">Continue Waiting</button>
+        <button type="button" class="btn-modal-confirm" onclick="confirmCancelAnalysis()">Yes, Cancel Task</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Toast Notification Container -->
+  <div id="toast-container" class="toast-container" role="region" aria-live="polite" aria-label="Notifications"></div>
+
+  <!-- ========================================================================
+       Sticky Header: Top Brand Bar & Clean Lab Navigation Bar
+       ======================================================================== -->
+  <div class="sticky-header-wrapper">
+    <!-- Top Bar -->
+    <header class="top-nav">
+      <div class="container nav-container">
+        <!-- Left Brand -->
+        <div class="nav-brand">
+          <div class="brand-icon">
+            <i class="fa-solid fa-shapes"></i>
+          </div>
+          <div class="brand-text">
+            <div class="brand-header">
+              <span class="brand-title">VISION LABS</span>
+              <span class="brand-pill">CSST106</span>
+            </div>
+            <span class="brand-sub">Perception &amp; Computer Vision</span>
+          </div>
+        </div>
+
+        <!-- Right Status & GitHub -->
+        <div class="nav-right">
+          <!-- Dark Mode Button before Aeron Jhed | BSCS-4B (Icon Only) -->
+          <button type="button" id="theme-toggle-btn" class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Theme" title="Toggle Light / Dark Mode">
+            <i class="fa-solid fa-moon" id="theme-toggle-icon"></i>
+          </button>
+          <div class="student-badge">
+            <span class="status-dot"></span>
+            <span>Aeron Jhed | BSCS-4B</span>
+          </div>
+          <a href="https://github.com/Lakano2499/CSST106-4B-AY25627" target="_blank" rel="noopener noreferrer" class="github-btn" aria-label="GitHub Repository">
+            <i class="fa-brands fa-github"></i>
+            <span>GitHub</span>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Clean Lab Activity Navigation Bar (Full Horizontal Tabs) -->
+    <nav class="lab-nav-bar" aria-label="Lab Activities Selection">
+      <div class="container">
+        <ul class="lab-tabs-list" id="lab-nav-tabs">
+          <li>
+            <button type="button" class="lab-tab-btn active" data-lab="lab1" onclick="switchLab('lab1')">
+              <span class="tab-badge">01</span>
+              <span>Image Manipulation</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="lab-tab-btn" data-lab="lab2" onclick="switchLab('lab2')">
+              <span class="tab-badge">02</span>
+              <span>Edge Detection</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="lab-tab-btn" data-lab="lab3" onclick="switchLab('lab3')">
+              <span class="tab-badge">03</span>
+              <span>Histogram Equalization</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="lab-tab-btn" data-lab="lab4" onclick="switchLab('lab4')">
+              <span class="tab-badge">04</span>
+              <span>Feature Detection</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="lab-tab-btn" data-lab="lab5" onclick="switchLab('lab5')">
+              <span class="tab-badge">05</span>
+              <span>PCA Eigenfaces</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="lab-tab-btn" data-lab="lab6" onclick="switchLab('lab6')">
+              <span class="tab-badge">06</span>
+              <span>YOLOv11 Detection</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="lab-tab-btn" data-lab="lab7" onclick="switchLab('lab7')">
+              <span class="tab-badge">07</span>
+              <span>Segmentation</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="lab-tab-btn" data-lab="lab-qa" onclick="switchLab('lab-qa')">
+              <span class="tab-badge tab-badge-qa"><i class="fa-solid fa-book-open"></i></span>
+              <span>Q&amp;A Compilation</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+
+  <!-- ========================================================================
+       Main Content Area: Dedicated Full-Screen View for Active Lab
+       ======================================================================== -->
+  <main class="container main-content">
+
+    <!-- ====================================================================
+         LAB 01 VIEW: Image Manipulation & Digital Representation
+         ==================================================================== -->
+    <section class="lab-view active" id="lab1" data-lab="lab1">
+      <div class="lab-header-card">
+        <div class="lab-header-left">
+          <div class="lab-num-badge badge-lab1">01</div>
+          <div class="lab-title-group">
+            <div class="lab-title-row">
+              <h1 class="lab-card-title">Lab 01: Image Manipulation &amp; Pixel Representation</h1>
+              <span class="lab-tag-pill">OpenCV • NumPy Basics</span>
+            </div>
+            <p class="lab-card-sub">Digital image representation, BGR color matrix inspection, ROI cropping, dimensional scaling, and rotation.</p>
+          </div>
+        </div>
+        <div class="lab-header-right">
+          <span class="lab-status-badge"><span class="status-dot"></span> Interactive Ready</span>
+        </div>
+      </div>
+
+      <div class="workspace-grid">
+        <!-- Left Control Sidebar (320px) -->
+        <div class="workspace-sidebar">
+          <div class="panel-title"><i class="fa-solid fa-sliders"></i> Parameters &amp; Input</div>
+
+          <div id="lab1-dropzone" class="dropzone" data-lab="1">
+            <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+            <div class="dropzone-title">Upload Color / Grayscale Image</div>
+            <div class="dropzone-hint">PNG, JPG, BMP up to 50MB (Drag &amp; drop or click)</div>
+            <img class="dropzone-preview" alt="Preview">
+            <input type="file" accept="image/*" style="display: none;">
+          </div>
+
+          <div class="controls-group">
+            <button type="button" id="lab1-full-analysis" class="btn-primary">
+              <i class="fa-solid fa-chart-pie"></i> Run Full Analysis
+            </button>
+          </div>
+
+          <div class="controls-group">
+            <div class="control-item">
+              <div class="control-label-row">
+                <span class="control-label">Crop Coordinates (X1, Y1, X2, Y2)</span>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                <input type="number" id="lab1-crop-x1" placeholder="X1" value="50">
+                <input type="number" id="lab1-crop-y1" placeholder="Y1" value="50">
+                <input type="number" id="lab1-crop-x2" placeholder="X2" value="250">
+                <input type="number" id="lab1-crop-y2" placeholder="Y2" value="250">
+              </div>
+              <button type="button" id="lab1-crop" class="btn-secondary" style="margin-top: 4px;">
+                <i class="fa-solid fa-crop"></i> Crop ROI
+              </button>
+            </div>
+
+            <div class="control-item">
+              <div class="control-label-row">
+                <span class="control-label">Resize Target (Width × Height)</span>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                <input type="number" id="lab1-resize-width" placeholder="W" value="300">
+                <input type="number" id="lab1-resize-height" placeholder="H" value="300">
+              </div>
+              <button type="button" id="lab1-resize" class="btn-secondary" style="margin-top: 4px;">
+                <i class="fa-solid fa-up-right-and-down-left-from-center"></i> Resize Image
+              </button>
+            </div>
+
+            <div class="control-item">
+              <div class="control-label-row">
+                <span class="control-label">Rotation Angle</span>
+              </div>
+              <select id="lab1-rotate-angle">
+                <option value="90">90° Clockwise</option>
+                <option value="180">180° Inverted</option>
+                <option value="270">270° Counter-Clockwise</option>
+              </select>
+              <button type="button" id="lab1-rotate" class="btn-secondary" style="margin-top: 4px;">
+                <i class="fa-solid fa-rotate"></i> Rotate Image
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Output Canvas -->
+        <div class="workspace-canvas">
+          <div class="canvas-header">
+            <span class="canvas-title"><i class="fa-solid fa-display"></i> Output Canvas &amp; Metrics</span>
+            <div class="canvas-actions">
+              <button type="button" class="btn-download" onclick="downloadLabResults('lab1')">
+                <i class="fa-solid fa-download"></i> Download Result
+              </button>
+            </div>
+          </div>
+
+          <div id="lab1-results" class="results-container">
+            <div class="canvas-empty-state">
+              <div class="empty-icon"><i class="fa-regular fa-image"></i></div>
+              <div class="empty-title">No Image Processed Yet</div>
+              <div class="empty-sub">Upload an image in the control panel on the left and click "Run Full Analysis" to generate visual outputs and pixel metadata.</div>
+            </div>
+          </div>
+
+          <!-- Lab Theory Reference Card -->
+          <div class="theory-card">
+            <div class="theory-header">
+              <span><i class="fa-solid fa-book-open"></i> Lab 01 Theory &amp; Report Answers (Hard-Copy Reference)</span>
+            </div>
+            <div class="theory-body">
+              <p class="theory-q">1. How are digital images digitally represented and manipulated in Computer Vision?</p>
+              <p class="theory-a">In computer vision, digital images are modeled as multi-dimensional numerical matrices (tensors) of pixel values. Grayscale images are 2D arrays of shape (Height, Width) with values from 0 (black) to 255 (white). Color images are 3D arrays of shape (Height, Width, Channels). Pixel manipulation involves mathematical matrix slicing, spatial transformations, and matrix operations.</p>
+              
+              <p class="theory-q">2. Why does OpenCV use BGR color channel ordering instead of RGB?</p>
+              <p class="theory-a">Historically, when OpenCV was first developed in 1999 by Intel, camera sensor manufacturers and video software systems stored pixel bytes in Blue-Green-Red (BGR) order in memory. While modern web browsers and display monitors use Red-Green-Blue (RGB), OpenCV retains BGR for backward compatibility.</p>
+
+              <p class="theory-q">3. What are real-life applications of basic image operations?</p>
+              <p class="theory-a">ROI cropping is used in automated license plate recognition (ALPR) to isolate plates; resizing is vital for neural network preprocessing where inputs must match fixed dimensions (e.g., 640×640 in YOLO); and rotation is foundational in dataset augmentation for computer vision training.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- ====================================================================
+         LAB 02 VIEW: Edge Detection Techniques (Sobel & Canny)
+         ==================================================================== -->
+    <section class="lab-view" id="lab2" data-lab="lab2">
+      <div class="lab-header-card">
+        <div class="lab-header-left">
+          <div class="lab-num-badge badge-lab2">02</div>
+          <div class="lab-title-group">
+            <div class="lab-title-row">
+              <h1 class="lab-card-title">Lab 02: Edge Detection Techniques (Sobel &amp; Canny)</h1>
+              <span class="lab-tag-pill">Sobel &amp; Canny Filter</span>
+            </div>
+            <p class="lab-card-sub">Gaussian noise reduction, Sobel gradient vectors (X/Y magnitude), and Canny hysteresis edge detection.</p>
+          </div>
+        </div>
+        <div class="lab-header-right">
+          <span class="lab-status-badge"><span class="status-dot"></span> Interactive Ready</span>
+        </div>
+      </div>
+
+      <div class="workspace-grid">
+        <!-- Left Control Sidebar -->
+        <div class="workspace-sidebar">
+          <div class="panel-title"><i class="fa-solid fa-sliders"></i> Edge Parameters</div>
+
+          <div id="lab2-dropzone" class="dropzone" data-lab="2">
+            <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+            <div class="dropzone-title">Upload Input Image</div>
+            <div class="dropzone-hint">Edge extraction will be performed automatically</div>
+            <img class="dropzone-preview" alt="Preview">
+            <input type="file" accept="image/*" style="display: none;">
+          </div>
+
+          <div class="controls-group">
+            <div class="control-item">
+              <div class="control-label-row">
+                <span class="control-label">Gaussian Blur Kernel Size</span>
+              </div>
+              <select id="lab2-blur-kernel">
+                <option value="3" selected>3 × 3 (Gentle Smoothing)</option>
+                <option value="5">5 × 5 (Moderate Smoothing)</option>
+                <option value="7">7 × 7 (Heavy Noise Suppression)</option>
+              </select>
+            </div>
+
+            <div class="control-item">
+              <div class="control-label-row">
+                <span class="control-label">Canny Lower Threshold</span>
+                <span class="control-val-badge" id="lab2-canny-low-val">100</span>
+              </div>
+              <input type="range" id="lab2-canny-low" min="10" max="250" value="100" step="5" oninput="document.getElementById('lab2-canny-low-val').textContent = this.value">
+            </div>
+
+            <div class="control-item">
+              <div class="control-label-row">
+                <span class="control-label">Canny Upper Threshold</span>
+                <span class="control-val-badge" id="lab2-canny-high-val">200</span>
+              </div>
+              <input type="range" id="lab2-canny-high" min="50" max="300" value="200" step="5" oninput="document.getElementById('lab2-canny-high-val').textContent = this.value">
+            </div>
+
+            <button type="button" id="lab2-process" class="btn-primary">
+              <i class="fa-solid fa-play"></i> Run Edge Detection
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Output Canvas -->
+        <div class="workspace-canvas">
+          <div class="canvas-header">
+            <span class="canvas-title"><i class="fa-solid fa-display"></i> Edge Map Comparison</span>
+            <div class="canvas-actions">
+              <button type="button" class="btn-download" onclick="downloadLabResults('lab2')">
+                <i class="fa-solid fa-download"></i> Download Result
+              </button>
+            </div>
+          </div>
+
+          <div id="lab2-results" class="results-container">
+            <div class="canvas-empty-state">
+              <div class="empty-icon"><i class="fa-solid fa-border-all"></i></div>
+              <div class="empty-title">Edge Maps Pending Execution</div>
+              <div class="empty-sub">Upload an image and run the algorithm to compare Original Grayscale, Sobel Combined Gradient, and Canny Edge Detection side-by-side.</div>
+            </div>
+          </div>
+
+          <!-- Lab Theory Reference Card -->
+          <div class="theory-card">
+            <div class="theory-header">
+              <span><i class="fa-solid fa-book-open"></i> Lab 02 Theory &amp; Report Answers (Hard-Copy Reference)</span>
+            </div>
+            <div class="theory-body">
+              <p class="theory-q">Explain the differences between the edge maps produced by Sobel and Canny:</p>
+              <p class="theory-a"><strong>1. Sobel Edge Detection:</strong> A 1st-order derivative gradient operator that computes horizontal (Sobel X) and vertical (Sobel Y) intensity differences. The resulting magnitude map displays continuous, gradient-shaded edges with varying thickness. Because it lacks thresholding and non-maximum suppression, edges can appear blurry and sensitive to background noise.</p>
+              <p class="theory-a"><strong>2. Canny Edge Detection:</strong> A comprehensive 4-stage edge detection pipeline: (1) Gaussian smoothing, (2) Sobel gradient computation, (3) Non-Maximum Suppression (thinning candidate edges to 1-pixel width), and (4) Hysteresis Thresholding using dual thresholds to link strong and weak edge pixels. Consequently, Canny yields clean, 1-pixel thin, closed, and noise-free binary edge contours.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- ====================================================================
+         LAB 03 VIEW: Histogram Equalization & Contrast Adjustment
+         ==================================================================== -->
+    <section class="lab-view" id="lab3" data-lab="lab3">
+      <div class="lab-header-card">
+        <div class="lab-header-left">
+          <div class="lab-num-badge badge-lab3">03</div>
+          <div class="lab-title-group">
+            <div class="lab-title-row">
+              <h1 class="lab-card-title">Lab 03: Histogram Equalization &amp; Contrast Adjustment</h1>
+              <span class="lab-tag-pill">Global &amp; CLAHE</span>
+            </div>
+            <p class="lab-card-sub">Linear contrast stretching, global equalization (cv2.equalizeHist), and Contrast Limited Adaptive Equalization (CLAHE).</p>
+          </div>
+        </div>
+        <div class="lab-header-right">
+          <span class="lab-status-badge"><span class="status-dot"></span> Interactive Ready</span>
+        </div>
+      </div>
+
+      <div class="workspace-grid">
+        <!-- Left Control Sidebar -->
+        <div class="workspace-sidebar">
+          <div class="panel-title"><i class="fa-solid fa-sliders"></i> Equalization Controls</div>
+
+          <div id="lab3-dropzone" class="dropzone" data-lab="3">
+            <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+            <div class="dropzone-title">Upload Low/High Contrast Image</div>
+            <div class="dropzone-hint">Supports Grayscale or Color inputs</div>
+            <img class="dropzone-preview" alt="Preview">
+            <input type="file" accept="image/*" style="display: none;">
+          </div>
+
+          <div class="controls-group">
+            <div class="control-item">
+              <div class="control-label-row">
+                <span class="control-label">Linear Contrast Gain (&alpha;)</span>
+                <span class="control-val-badge" id="lab3-alpha-val">1.5</span>
+              </div>
+              <input type="range" id="lab3-alpha" min="0.5" max="3.0" value="1.5" step="0.1" oninput="document.getElementById('lab3-alpha-val').textContent = this.value">
+            </div>
+
+            <div class="control-item">
+              <div class="control-label-row">
+                <span class="control-label">Linear Brightness Bias (&beta;)</span>
+                <span class="control-val-badge" id="lab3-beta-val">0</span>
+              </div>
+              <input type="range" id="lab3-beta" min="-100" max="100" value="0" step="5" oninput="document.getElementById('lab3-beta-val').textContent = this.value">
+            </div>
+
+            <div class="control-item">
+              <div class="control-label-row">
+                <span class="control-label">CLAHE Clip Limit</span>
+                <span class="control-val-badge" id="lab3-clip-val">2.0</span>
+              </div>
+              <input type="range" id="lab3-clip-limit" min="1.0" max="8.0" value="2.0" step="0.5" oninput="document.getElementById('lab3-clip-val').textContent = this.value">
+            </div>
+
+            <div class="control-item">
+              <div class="control-label-row">
+                <span class="control-label">CLAHE Tile Grid Size</span>
+              </div>
+              <select id="lab3-tile-size">
+                <option value="4">4 × 4 Tiles (Fine details)</option>
+                <option value="8" selected>8 × 8 Tiles (Standard)</option>
+                <option value="16">16 × 16 Tiles (Broad regions)</option>
+              </select>
+            </div>
+
+            <button type="button" id="lab3-process" class="btn-primary">
+              <i class="fa-solid fa-chart-simple"></i> Run Histogram Equalization
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Output Canvas -->
+        <div class="workspace-canvas">
+          <div class="canvas-header">
+            <span class="canvas-title"><i class="fa-solid fa-display"></i> Contrast &amp; Distribution Histograms</span>
+            <div class="canvas-actions">
+              <button type="button" class="btn-download" onclick="downloadLabResults('lab3')">
+                <i class="fa-solid fa-download"></i> Download Result
+              </button>
+            </div>
+          </div>
+
+          <div id="lab3-results" class="results-container">
+            <div class="canvas-empty-state">
+              <div class="empty-icon"><i class="fa-solid fa-chart-column"></i></div>
+              <div class="empty-title">Histogram Data Not Generated</div>
+              <div class="empty-sub">Execute the algorithm to view the 4-way visual comparison alongside the Matplotlib intensity distribution histograms.</div>
+            </div>
+          </div>
+
+          <!-- Lab Theory Reference Card -->
+          <div class="theory-card">
+            <div class="theory-header">
+              <span><i class="fa-solid fa-book-open"></i> Lab 03 Theory &amp; Report Answers (Hard-Copy Reference)</span>
+            </div>
+            <div class="theory-body">
+              <p class="theory-q">1. What is histogram equalization and why do we need it?</p>
+              <p class="theory-a">Histogram equalization is a non-linear contrast enhancement technique that redistributes pixel intensities evenly across the dynamic range (0–255). It is essential in computer vision because underexposed or overexposed images bunch pixel values into narrow intensity clusters, obscuring edges and features required for downstream feature extraction.</p>
+              
+              <p class="theory-q">2. How does CLAHE differ from Global Histogram Equalization?</p>
+              <p class="theory-a">Global histogram equalization computes a single Cumulative Distribution Function (CDF) for the entire image, which often over-amplifies background noise in homogeneous regions. In contrast, CLAHE divides the image into contextual local tiles (e.g., 8×8), applies equalization locally, and strictly caps histogram bins at a 'clipLimit' before using bilinear interpolation to blend tile borders seamlessly.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- ====================================================================
+         LAB 04 VIEW: SURF / SIFT / ORB Feature Detection & Matching
+         ==================================================================== -->
+    <section class="lab-view" id="lab4" data-lab="lab4">
+      <div class="lab-header-card">
+        <div class="lab-header-left">
+          <div class="lab-num-badge badge-lab4">04</div>
+          <div class="lab-title-group">
+            <div class="lab-title-row">
+              <h1 class="lab-card-title">Lab 04: SURF Feature Detection &amp; Comparison</h1>
+              <span class="lab-tag-pill">Keypoints &amp; Descriptors</span>
+            </div>
+            <p class="lab-card-sub">Speeded-Up Robust Features (SURF) with SIFT/ORB fallback, rich keypoints, and dual-image feature matching.</p>
+          </div>
+        </div>
+        <div class="lab-header-right">
+          <span class="lab-status-badge"><span class="status-dot"></span> Interactive Ready</span>
+        </div>
+      </div>
+
+      <div class="workspace-grid">
+        <!-- Left Control Sidebar -->
+        <div class="workspace-sidebar">
+          <div class="panel-title"><i class="fa-solid fa-sliders"></i> Feature Extractor</div>
+
+          <div id="lab4-dropzone1" class="dropzone" data-lab="4">
+            <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+            <div class="dropzone-title">Primary Test Image (Required)</div>
+            <div class="dropzone-hint">Image to detect keypoints on</div>
+            <img class="dropzone-preview" alt="Preview">
+            <input type="file" accept="image/*" style="display: none;">
+          </div>
+
+          <div id="lab4-dropzone2" class="dropzone" data-lab="4" style="margin-top: -6px;">
+            <i class="fa-solid fa-images dropzone-icon" style="font-size: 1.3rem;"></i>
+            <div class="dropzone-title" style="font-size: 0.78rem;">Second Image (Optional for Matching)</div>
+            <div class="dropzone-hint">Upload to trigger BFMatcher comparison</div>
+            <img class="dropzone-preview" alt="Preview">
+            <input type="file" accept="image/*" style="display: none;">
+          </div>
+
+          <div class="controls-group">
+            <div class="control-item">
+              <div class="control-label-row">
+                <span class="control-label">Detector Engine</span>
+              </div>
+              <select id="lab4-detector">
+                <option value="SURF">SURF (cv2.xfeatures2d with SIFT fallback)</option>
+                <option value="SIFT">SIFT (Scale-Invariant Feature Transform)</option>
+                <option value="ORB" selected>ORB (Oriented FAST and Rotated BRIEF)</option>
+              </select>
+            </div>
+
+            <div class="control-item">
+              <div class="control-label-row">
+                <span class="control-label">Hessian Threshold (SURF/SIFT)</span>
+                <span class="control-val-badge" id="lab4-hessian-val">400</span>
+              </div>
+              <input type="range" id="lab4-hessian" min="100" max="1000" value="400" step="50" oninput="document.getElementById('lab4-hessian-val').textContent = this.value">
+            </div>
+
+            <div class="checkbox-row" style="margin-top: 4px;">
+              <input type="checkbox" id="lab4-upright">
+              <label for="lab4-upright" class="checkbox-label">U-SURF (Upright mode — faster, no orientation)</label>
+            </div>
+
+            <button type="button" id="lab4-process" class="btn-primary">
+              <i class="fa-solid fa-crosshairs"></i> Detect &amp; Match Keypoints
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Output Canvas -->
+        <div class="workspace-canvas">
+          <div class="canvas-header">
+            <span class="canvas-title"><i class="fa-solid fa-display"></i> Feature Keypoints &amp; Benchmark</span>
+            <div class="canvas-actions">
+              <button type="button" class="btn-download" onclick="downloadLabResults('lab4')">
+                <i class="fa-solid fa-download"></i> Download Result
+              </button>
+            </div>
+          </div>
+
+          <div id="lab4-results" class="results-container">
+            <div class="canvas-empty-state">
+              <div class="empty-icon"><i class="fa-solid fa-circle-nodes"></i></div>
+              <div class="empty-title">Keypoint Analysis Pending</div>
+              <div class="empty-sub">Upload an image and run the extractor to visualize keypoint scale and orientation circles alongside execution latency metrics.</div>
+            </div>
+          </div>
+
+          <!-- Lab Theory Reference Card -->
+          <div class="theory-card">
+            <div class="theory-header">
+              <span><i class="fa-solid fa-book-open"></i> Lab 04 Theory &amp; Report Answers (Hard-Copy Reference)</span>
+            </div>
+            <div class="theory-body">
+              <p class="theory-q">1. What effect does changing the Hessian threshold have on detected keypoints?</p>
+              <p class="theory-a">The Hessian threshold acts as a determinant blob-response filter. Increasing the threshold retains only the most prominent, high-contrast corner and blob points (yielding fewer keypoints with higher repeatability). Decreasing the threshold admits weaker responses, increasing the total keypoint count but introducing noisy, less stable points.</p>
+
+              <p class="theory-q">2. How does SURF compare with SIFT and ORB?</p>
+              <p class="theory-a">SIFT uses Difference-of-Gaussians (DoG) and produces 128-dimensional floating-point descriptors; it is highly accurate and scale/rotation invariant but computationally intensive. SURF uses integral images and Haar wavelets with 64-dimensional descriptors, running significantly faster than SIFT. ORB is an unpatented, open-source binary descriptor (256-bit Hamming distance) that executes orders of magnitude faster than both SIFT and SURF.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- ====================================================================
+         LAB 05 VIEW: Facial Recognition using PCA (Eigenfaces)
+         ==================================================================== -->
+    <section class="lab-view" id="lab5" data-lab="lab5">
+      <div class="lab-header-card">
+        <div class="lab-header-left">
+          <div class="lab-num-badge badge-lab5">05</div>
+          <div class="lab-title-group">
+            <div class="lab-title-row">
+              <h1 class="lab-card-title">Lab 05: Facial Recognition using PCA (Eigenfaces)</h1>
+              <span class="lab-tag-pill">Dimensionality Reduction &amp; SVM</span>
+            </div>
+            <p class="lab-card-sub">Labeled Faces in the Wild (LFW) dataset, top 12 eigenfaces gallery, 90% variance curve, and SVM classifier.</p>
+          </div>
+        </div>
+        <div class="lab-header-right">
+          <span class="lab-status-badge"><span class="status-dot"></span> Interactive Ready</span>
+        </div>
+      </div>
+
+      <div class="workspace-grid">
+        <!-- Left Control Sidebar -->
+        <div class="workspace-sidebar">
+          <div class="panel-title"><i class="fa-solid fa-sliders"></i> PCA Configuration</div>
+
+          <div style="background-color: var(--bg-subsurface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; font-size: 0.8rem; color: var(--text-body);">
+            <i class="fa-solid fa-database" style="color: var(--brand-primary); margin-right: 6px;"></i>
+            <strong>Dataset:</strong> LFW People (min 70 faces/person). Cached locally in <code>cache/</code> for instant subsequent runs.
+          </div>
+
+          <div class="controls-group">
+            <div class="control-item">
+              <div class="control-label-row">
+                <span class="control-label">Principal Components (n_components)</span>
+                <span class="control-val-badge" id="lab5-components-val">150</span>
+              </div>
+              <input type="range" id="lab5-components" min="20" max="150" value="150" step="10" oninput="document.getElementById('lab5-components-val').textContent = this.value">
+            </div>
+
+            <div class="checkbox-row" style="margin-top: 4px;">
+              <input type="checkbox" id="lab5-whiten" checked>
+              <label for="lab5-whiten" class="checkbox-label">whiten=True (Unit variance scaling for SVM)</label>
+            </div>
+
+            <button type="button" id="lab5-train" class="btn-primary" style="margin-top: 8px;">
+              <i class="fa-solid fa-brain"></i> Train &amp; Evaluate Eigenfaces
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Output Canvas -->
+        <div class="workspace-canvas">
+          <div class="canvas-header">
+            <span class="canvas-title"><i class="fa-solid fa-display"></i> Eigenfaces Gallery &amp; Classification Metrics</span>
+            <div class="canvas-actions">
+              <button type="button" class="btn-download" onclick="downloadLabResults('lab5')">
+                <i class="fa-solid fa-download"></i> Download Result
+              </button>
+            </div>
+          </div>
+
+          <div id="lab5-results" class="results-container">
+            <div class="canvas-empty-state">
+              <div class="empty-icon"><i class="fa-solid fa-id-badge"></i></div>
+              <div class="empty-title">LFW Model Not Trained</div>
+              <div class="empty-sub">Click "Train &amp; Evaluate Eigenfaces" to perform PCA decomposition, plot the top 12 ghostly Eigenface eigenvectors, plot the 90% variance threshold, and evaluate the SVM classifier.</div>
+            </div>
+          </div>
+
+          <!-- Lab Theory Reference Card -->
+          <div class="theory-card">
+            <div class="theory-header">
+              <span><i class="fa-solid fa-book-open"></i> Lab 05 Theory &amp; Report Answers (Hard-Copy Reference)</span>
+            </div>
+            <div class="theory-body">
+              <p class="theory-q">1. What does mathematical whitening do, and why is it beneficial before feeding PCA data into an SVM?</p>
+              <p class="theory-a">When <code>whiten=True</code> is specified in PCA, each projected principal component coordinate is divided by its singular value. Mathematically, this projects the transformed features into an isotropic uncorrelated Gaussian distribution with unit variance. For an RBF-kernel SVM, whitening ensures all principal components exert equal geometric weight in distance computations, preventing dominant components from overpowering subtle diagnostic features.</p>
+
+              <p class="theory-q">2. Visual Interpretation of Eigenfaces:</p>
+              <p class="theory-a">The initial Eigenfaces capture coarse, global illumination and low-frequency structures (e.g., forehead width, overall lighting angle, jawline boundaries). In contrast, higher-order Eigenfaces capture high-frequency localized features (e.g., mouth shape, nose bridge curvature, eye corner details, and hairline transitions).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- ====================================================================
+         LAB 06 VIEW: YOLOv11 Real-Time Object Detection
+         ==================================================================== -->
+    <section class="lab-view" id="lab6" data-lab="lab6">
+      <div class="lab-header-card">
+        <div class="lab-header-left">
+          <div class="lab-num-badge badge-lab6">06</div>
+          <div class="lab-title-group">
+            <div class="lab-title-row">
+              <h1 class="lab-card-title">Lab 06: YOLOv11 Real-Time Object Detection</h1>
+              <span class="lab-tag-pill">Deep Learning &amp; Inference</span>
+            </div>
+            <p class="lab-card-sub">State-of-the-art YOLOv11 multi-class object detection, bounding box coordinates, confidence scores, and latency metrics.</p>
+          </div>
+        </div>
+        <div class="lab-header-right">
+          <span class="lab-status-badge"><span class="status-dot"></span> Interactive Ready</span>
+        </div>
+      </div>
+
+      <div class="workspace-grid">
+        <!-- Left Control Sidebar -->
+        <div class="workspace-sidebar">
+          <div class="panel-title"><i class="fa-solid fa-sliders"></i> YOLO Settings</div>
+
+          <div id="lab6-dropzone" class="dropzone" data-lab="6">
+            <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+            <div class="dropzone-title">Upload Test Image</div>
+            <div class="dropzone-hint">Objects (people, cars, bottles, etc.) will be boxed</div>
+            <img class="dropzone-preview" alt="Preview">
+            <input type="file" accept="image/*" style="display: none;">
+          </div>
+
+          <div class="controls-group">
+            <div class="control-item">
+              <div class="control-label-row">
+                <span class="control-label">YOLO Architecture Weights</span>
+              </div>
+              <select id="lab6-model-name">
+                <option value="yolo11n.pt" selected>YOLOv11n (Nano — Ultra Fast)</option>
+                <option value="yolo11s.pt">YOLOv11s (Small — Higher Accuracy)</option>
+                <option value="yolov8n.pt">YOLOv8n (Legacy Compatibility)</option>
+              </select>
+            </div>
+
+            <div class="control-item">
+              <div class="control-label-row">
+                <span class="control-label">Confidence Threshold</span>
+                <span class="control-val-badge" id="lab6-confidence-val">0.25</span>
+              </div>
+              <input type="range" id="lab6-confidence" min="0.10" max="0.90" value="0.25" step="0.05" oninput="document.getElementById('lab6-confidence-val').textContent = this.value">
+            </div>
+
+            <button type="button" id="lab6-process" class="btn-primary">
+              <i class="fa-solid fa-bullseye"></i> Run YOLO Object Detection
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Output Canvas -->
+        <div class="workspace-canvas">
+          <div class="canvas-header">
+            <span class="canvas-title"><i class="fa-solid fa-display"></i> Detection Predictions &amp; Bounding Boxes</span>
+            <div class="canvas-actions">
+              <button type="button" class="btn-download" onclick="downloadLabResults('lab6')">
+                <i class="fa-solid fa-download"></i> Download Result
+              </button>
+            </div>
+          </div>
+
+          <div id="lab6-results" class="results-container">
+            <div class="canvas-empty-state">
+              <div class="empty-icon"><i class="fa-solid fa-vector-square"></i></div>
+              <div class="empty-title">Awaiting Detection Inference</div>
+              <div class="empty-sub">Upload a scene containing everyday objects (people, laptops, vehicles, bottles) to view annotated bounding boxes and inference speed in milliseconds.</div>
+            </div>
+          </div>
+
+          <!-- Lab Theory Reference Card -->
+          <div class="theory-card">
+            <div class="theory-header">
+              <span><i class="fa-solid fa-book-open"></i> Lab 06 Theory &amp; Report Answers (Hard-Copy Reference)</span>
+            </div>
+            <div class="theory-body">
+              <p class="theory-q">What is object detection in computer vision, and how does it differ from image classification?</p>
+              <p class="theory-a"><strong>Image Classification:</strong> Takes an entire image as input and outputs a single categorical label indicating what the dominant subject is (e.g., 'dog'), without providing any spatial location.</p>
+              <p class="theory-a"><strong>Object Detection:</strong> Solves both classification and spatial localization concurrently. It predicts both 'what' objects are present and 'where' they are located by generating bounding box coordinates [x1, y1, x2, y2] for multiple co-occurring objects across diverse classes in a single forward pass.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- ====================================================================
+         LAB 07 VIEW: Image Segmentation Techniques (4-Way Comparison)
+         ==================================================================== -->
+    <section class="lab-view" id="lab7" data-lab="lab7">
+      <div class="lab-header-card">
+        <div class="lab-header-left">
+          <div class="lab-num-badge badge-lab7">07</div>
+          <div class="lab-title-group">
+            <div class="lab-title-row">
+              <h1 class="lab-card-title">Lab 07: Image Segmentation Techniques (4-Way Comparison)</h1>
+              <span class="lab-tag-pill">Otsu • Watershed • Contours • DeepLabV3</span>
+            </div>
+            <p class="lab-card-sub">Comparison of 4 segmentation methods: Global/Adaptive Thresholding, Watershed, Edge-based Contours, and DeepLabV3.</p>
+          </div>
+        </div>
+        <div class="lab-header-right">
+          <span class="lab-status-badge"><span class="status-dot"></span> Interactive Ready</span>
+        </div>
+      </div>
+
+      <div class="workspace-grid">
+        <!-- Left Control Sidebar -->
+        <div class="workspace-sidebar">
+          <div class="panel-title"><i class="fa-solid fa-sliders"></i> Segmentation Controls</div>
+
+          <div id="lab7-dropzone" class="dropzone" data-lab="7">
+            <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+            <div class="dropzone-title">Upload Segmentation Image</div>
+            <div class="dropzone-hint">High-contrast or multi-object scenes</div>
+            <img class="dropzone-preview" alt="Preview">
+            <input type="file" accept="image/*" style="display: none;">
+          </div>
+
+          <div class="controls-group">
+            <div class="control-item">
+              <div class="control-label-row">
+                <span class="control-label">Thresholding Method</span>
+              </div>
+              <select id="lab7-threshold-method">
+                <option value="otsu" selected>Otsu Bimodal Thresholding</option>
+                <option value="adaptive_gaussian">Adaptive Gaussian Thresholding</option>
+                <option value="adaptive_mean">Adaptive Mean Thresholding</option>
+              </select>
+            </div>
+
+            <div class="control-item">
+              <div class="control-label-row">
+                <span class="control-label">Adaptive Block Size</span>
+                <span class="control-val-badge" id="lab7-block-val">11</span>
+              </div>
+              <input type="range" id="lab7-block-size" min="3" max="31" value="11" step="2" oninput="document.getElementById('lab7-block-val').textContent = this.value">
+            </div>
+
+            <div class="control-item">
+              <div class="control-label-row">
+                <span class="control-label">Watershed Distance Threshold</span>
+                <span class="control-val-badge" id="lab7-watershed-val">0.50</span>
+              </div>
+              <input type="range" id="lab7-watershed-threshold" min="0.10" max="0.90" value="0.50" step="0.05" oninput="document.getElementById('lab7-watershed-val').textContent = this.value">
+            </div>
+
+            <div class="control-item">
+              <div class="control-label-row">
+                <span class="control-label">Min Contour Area (px)</span>
+                <span class="control-val-badge" id="lab7-contour-val">100</span>
+              </div>
+              <input type="range" id="lab7-contour-min" min="10" max="1000" value="100" step="10" oninput="document.getElementById('lab7-contour-val').textContent = this.value">
+            </div>
+
+            <div class="checkbox-row" style="margin-top: 4px;">
+              <input type="checkbox" id="lab7-deep-learning" checked>
+              <label for="lab7-deep-learning" class="checkbox-label">Enable Semantic Segmentation (DeepLabV3)</label>
+            </div>
+
+            <button type="button" id="lab7-process" class="btn-primary" style="margin-top: 8px;">
+              <i class="fa-solid fa-puzzle-piece"></i> Run 4-Way Segmentation
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Output Canvas -->
+        <div class="workspace-canvas">
+          <div class="canvas-header">
+            <span class="canvas-title"><i class="fa-solid fa-display"></i> Multi-Method Segmentation Canvas</span>
+            <div class="canvas-actions">
+              <button type="button" class="btn-download" onclick="downloadLabResults('lab7')">
+                <i class="fa-solid fa-download"></i> Download Result
+              </button>
+            </div>
+          </div>
+
+          <div id="lab7-results" class="results-container">
+            <div class="canvas-empty-state">
+              <div class="empty-icon"><i class="fa-solid fa-layer-group"></i></div>
+              <div class="empty-title">Segmentation Results Pending</div>
+              <div class="empty-sub">Upload an image and run the suite to view the 4-way visual comparison: Thresholding, Watershed Region separation, Edge Contours, and DeepLabV3 Semantic Mask.</div>
+            </div>
+          </div>
+
+          <!-- Lab Theory Reference Card -->
+          <div class="theory-card">
+            <div class="theory-header">
+              <span><i class="fa-solid fa-book-open"></i> Lab 07 Theory &amp; Report Answers (Hard-Copy Reference)</span>
+            </div>
+            <div class="theory-body">
+              <p class="theory-q">Explain the differences between thresholding, region-based, edge-based, and semantic segmentation with advantages and limitations:</p>
+              <div class="data-table-wrap" style="margin-top: 8px;">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Technique</th>
+                      <th>Core Principle</th>
+                      <th>Key Advantage</th>
+                      <th>Key Limitation</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Thresholding</strong></td>
+                      <td>Separates pixels based on scalar intensity cutoff (e.g. Otsu bimodal).</td>
+                      <td>Extremely fast, minimal computation.</td>
+                      <td>Fails under uneven lighting and low contrast.</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Region-Based (Watershed)</strong></td>
+                      <td>Simulates flooding topological surfaces from markers/distance peaks.</td>
+                      <td>Separates touching, overlapping objects cleanly.</td>
+                      <td>Prone to over-segmentation without exact markers.</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Edge-Based</strong></td>
+                      <td>Identifies boundaries via gradient discontinuities (Canny) and groups contours.</td>
+                      <td>Preserves exact boundary shapes and perimeters.</td>
+                      <td>Sensitive to noise; broken edge gaps prevent closed regions.</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Semantic (DeepLabV3)</strong></td>
+                      <td>Assigns class labels to every pixel using deep convolutional feature maps.</td>
+                      <td>Understands complex real-world multi-class scenes.</td>
+                      <td>Computationally heavy, requires pre-trained weights.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         THEORY & REPORT Q&A COMPILATION VIEW (LABS 01 TO 07)
+         ==================================================================== -->
+    <section class="lab-view" id="lab-qa" data-lab="lab-qa">
+      <div class="lab-header-card qa-header-card">
+        <div class="lab-header-left">
+          <div class="lab-num-badge badge-qa"><i class="fa-solid fa-graduation-cap"></i></div>
+          <div class="lab-title-group">
+            <div class="lab-title-row">
+              <h1 class="lab-card-title">Theory &amp; Academic Report Q&amp;A Compilation</h1>
+              <span class="lab-tag-pill">Labs 01–07 Complete</span>
+            </div>
+            <p class="lab-card-sub">Centralized repository of all laboratory questions, theoretical foundations, mathematical explanations, and comparative frameworks for printed hard-copy report submission.</p>
+          </div>
+        </div>
+        <div class="qa-export-toolbar">
+          <div class="qa-export-controls">
+            <label for="qa-format-select" class="qa-export-label"><i class="fa-solid fa-file-export"></i> Format:</label>
+            <select id="qa-format-select" class="control-select qa-select">
+              <option value="md">Markdown (.md)</option>
+              <option value="txt">Plain Text (.txt)</option>
+              <option value="html">HTML Report (.html)</option>
+              <option value="doc">Word / Doc (.doc)</option>
+              <option value="json">Structured JSON (.json)</option>
+            </select>
+            <button type="button" class="btn btn-primary qa-download-btn" onclick="downloadQACompilation()">
+              <i class="fa-solid fa-file-arrow-down"></i> Download File
+            </button>
+            <button type="button" class="btn-download" onclick="copyQAToClipboard()" title="Copy entire Q&A compilation to clipboard">
+              <i class="fa-solid fa-copy"></i> Copy All
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="qa-compilation-container">
+        <!-- Lab 01 Card -->
+        <article class="qa-card" id="qa-lab1">
+          <div class="qa-card-header">
+            <div class="qa-card-badge badge-lab1">Lab 01</div>
+            <h2 class="qa-card-title">Image Manipulation &amp; Pixel Representation</h2>
+            <button type="button" class="btn-copy-section" onclick="copyLabQA('01')"><i class="fa-regular fa-copy"></i> Copy Lab 01</button>
+          </div>
+          <div class="qa-card-body">
+            <div class="qa-item">
+              <h3 class="qa-question">1. How are digital images digitally represented and manipulated in Computer Vision?</h3>
+              <p class="qa-answer">In computer vision, digital images are modeled as multi-dimensional numerical matrices (tensors) of pixel values. Grayscale images are 2D arrays of shape <code>(Height, Width)</code> with values from 0 (black) to 255 (white). Color images are 3D arrays of shape <code>(Height, Width, Channels)</code>. Pixel manipulation involves mathematical matrix slicing, spatial transformations, and matrix operations.</p>
+            </div>
+            <div class="qa-item">
+              <h3 class="qa-question">2. Why does OpenCV use BGR color channel ordering instead of RGB?</h3>
+              <p class="qa-answer">Historically, when OpenCV was first developed in 1999 by Intel, camera sensor manufacturers and video software systems stored pixel bytes in Blue-Green-Red (BGR) order in memory. While modern web browsers and display monitors use Red-Green-Blue (RGB), OpenCV retains BGR for backward compatibility.</p>
+            </div>
+            <div class="qa-item">
+              <h3 class="qa-question">3. What are real-life applications of basic image operations?</h3>
+              <p class="qa-answer">ROI cropping is used in automated license plate recognition (ALPR) to isolate plates; resizing is vital for neural network preprocessing where inputs must match fixed dimensions (e.g., 640×640 in YOLO); and rotation is foundational in dataset augmentation for computer vision training.</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- Lab 02 Card -->
+        <article class="qa-card" id="qa-lab2">
+          <div class="qa-card-header">
+            <div class="qa-card-badge badge-lab2">Lab 02</div>
+            <h2 class="qa-card-title">Edge Detection Techniques (Sobel &amp; Canny)</h2>
+            <button type="button" class="btn-copy-section" onclick="copyLabQA('02')"><i class="fa-regular fa-copy"></i> Copy Lab 02</button>
+          </div>
+          <div class="qa-card-body">
+            <div class="qa-item">
+              <h3 class="qa-question">Explain the differences between the edge maps produced by Sobel and Canny:</h3>
+              <div class="qa-answer">
+                <p><strong>1. Sobel Edge Detection:</strong> A 1st-order derivative gradient operator that computes horizontal (Sobel X) and vertical (Sobel Y) intensity differences. The resulting magnitude map displays continuous, gradient-shaded edges with varying thickness. Because it lacks thresholding and non-maximum suppression, edges can appear blurry and sensitive to background noise.</p>
+                <p style="margin-top: 8px;"><strong>2. Canny Edge Detection:</strong> A comprehensive 4-stage edge detection pipeline: (1) Gaussian smoothing, (2) Sobel gradient computation, (3) Non-Maximum Suppression (thinning candidate edges to 1-pixel width), and (4) Hysteresis Thresholding using dual thresholds to link strong and weak edge pixels. Consequently, Canny yields clean, 1-pixel thin, closed, and noise-free binary edge contours.</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Lab 03 Card -->
+        <article class="qa-card" id="qa-lab3">
+          <div class="qa-card-header">
+            <div class="qa-card-badge badge-lab3">Lab 03</div>
+            <h2 class="qa-card-title">Histogram Equalization &amp; Contrast Enhancement</h2>
+            <button type="button" class="btn-copy-section" onclick="copyLabQA('03')"><i class="fa-regular fa-copy"></i> Copy Lab 03</button>
+          </div>
+          <div class="qa-card-body">
+            <div class="qa-item">
+              <h3 class="qa-question">1. What is histogram equalization and why do we need it?</h3>
+              <p class="qa-answer">Histogram equalization is a non-linear contrast enhancement technique that redistributes pixel intensities evenly across the dynamic range (0–255). It is essential in computer vision because underexposed or overexposed images bunch pixel values into narrow intensity clusters, obscuring edges and features required for downstream feature extraction.</p>
+            </div>
+            <div class="qa-item">
+              <h3 class="qa-question">2. How does CLAHE differ from Global Histogram Equalization?</h3>
+              <p class="qa-answer">Global histogram equalization computes a single Cumulative Distribution Function (CDF) for the entire image, which often over-amplifies background noise in homogeneous regions. In contrast, CLAHE divides the image into contextual local tiles (e.g., 8×8), applies equalization locally, and strictly caps histogram bins at a 'clipLimit' before using bilinear interpolation to blend tile borders seamlessly.</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- Lab 04 Card -->
+        <article class="qa-card" id="qa-lab4">
+          <div class="qa-card-header">
+            <div class="qa-card-badge badge-lab4">Lab 04</div>
+            <h2 class="qa-card-title">Feature Detection &amp; Matching (SURF, SIFT, ORB)</h2>
+            <button type="button" class="btn-copy-section" onclick="copyLabQA('04')"><i class="fa-regular fa-copy"></i> Copy Lab 04</button>
+          </div>
+          <div class="qa-card-body">
+            <div class="qa-item">
+              <h3 class="qa-question">1. What effect does changing the Hessian threshold have on detected keypoints?</h3>
+              <p class="qa-answer">The Hessian threshold acts as a determinant blob-response filter. Increasing the threshold retains only the most prominent, high-contrast corner and blob points (yielding fewer keypoints with higher repeatability). Decreasing the threshold admits weaker responses, increasing the total keypoint count but introducing noisy, less stable points.</p>
+            </div>
+            <div class="qa-item">
+              <h3 class="qa-question">2. How does SURF compare with SIFT and ORB?</h3>
+              <p class="qa-answer">SIFT uses Difference-of-Gaussians (DoG) and produces 128-dimensional floating-point descriptors; it is highly accurate and scale/rotation invariant but computationally intensive. SURF uses integral images and Haar wavelets with 64-dimensional descriptors, running significantly faster than SIFT. ORB is an unpatented, open-source binary descriptor (256-bit Hamming distance) that executes orders of magnitude faster than both SIFT and SURF.</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- Lab 05 Card -->
+        <article class="qa-card" id="qa-lab5">
+          <div class="qa-card-header">
+            <div class="qa-card-badge badge-lab5">Lab 05</div>
+            <h2 class="qa-card-title">Facial Recognition using PCA (Eigenfaces &amp; SVM)</h2>
+            <button type="button" class="btn-copy-section" onclick="copyLabQA('05')"><i class="fa-regular fa-copy"></i> Copy Lab 05</button>
+          </div>
+          <div class="qa-card-body">
+            <div class="qa-item">
+              <h3 class="qa-question">1. What does mathematical whitening do, and why is it beneficial before feeding PCA data into an SVM?</h3>
+              <p class="qa-answer">When <code>whiten=True</code> is specified in PCA, each projected principal component coordinate is divided by its singular value. Mathematically, this projects the transformed features into an isotropic uncorrelated Gaussian distribution with unit variance. For an RBF-kernel SVM, whitening ensures all principal components exert equal geometric weight in distance computations, preventing dominant components from overpowering subtle diagnostic features.</p>
+            </div>
+            <div class="qa-item">
+              <h3 class="qa-question">2. Visual Interpretation of Eigenfaces:</h3>
+              <p class="qa-answer">The initial Eigenfaces capture coarse, global illumination and low-frequency structures (e.g., forehead width, overall lighting angle, jawline boundaries). In contrast, higher-order Eigenfaces capture high-frequency localized features (e.g., mouth shape, nose bridge curvature, eye corner details, and hairline transitions).</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- Lab 06 Card -->
+        <article class="qa-card" id="qa-lab6">
+          <div class="qa-card-header">
+            <div class="qa-card-badge badge-lab6">Lab 06</div>
+            <h2 class="qa-card-title">Object Detection using YOLOv11</h2>
+            <button type="button" class="btn-copy-section" onclick="copyLabQA('06')"><i class="fa-regular fa-copy"></i> Copy Lab 06</button>
+          </div>
+          <div class="qa-card-body">
+            <div class="qa-item">
+              <h3 class="qa-question">What is object detection in computer vision, and how does it differ from image classification?</h3>
+              <div class="qa-answer">
+                <p><strong>Image Classification:</strong> Takes an entire image as input and outputs a single categorical label indicating what the dominant subject is (e.g., 'dog'), without providing any spatial location.</p>
+                <p style="margin-top: 8px;"><strong>Object Detection:</strong> Solves both classification and spatial localization concurrently. It predicts both 'what' objects are present and 'where' they are located by generating bounding box coordinates <code>[x1, y1, x2, y2]</code> for multiple co-occurring objects across diverse classes in a single forward pass.</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Lab 07 Card -->
+        <article class="qa-card" id="qa-lab7">
+          <div class="qa-card-header">
+            <div class="qa-card-badge badge-lab7">Lab 07</div>
+            <h2 class="qa-card-title">Image Segmentation (Thresholding, Region, Edge, Semantic)</h2>
+            <button type="button" class="btn-copy-section" onclick="copyLabQA('07')"><i class="fa-regular fa-copy"></i> Copy Lab 07</button>
+          </div>
+          <div class="qa-card-body">
+            <div class="qa-item">
+              <h3 class="qa-question">Explain the differences between thresholding, region-based, edge-based, and semantic segmentation with advantages and limitations:</h3>
+              <div class="data-table-wrap" style="margin-top: 12px;">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Technique</th>
+                      <th>Core Principle</th>
+                      <th>Key Advantage</th>
+                      <th>Key Limitation</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Thresholding</strong></td>
+                      <td>Splits pixels based on intensity cutoff (Global Otsu / Local Adaptive).</td>
+                      <td>Fastest, minimal computational overhead.</td>
+                      <td>Fails under uneven illumination or gradients.</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Region-Based (Watershed)</strong></td>
+                      <td>Treats gradients as topographic relief, flooding from marker minima.</td>
+                      <td>Separates touching, overlapping objects cleanly.</td>
+                      <td>Prone to over-segmentation without exact markers.</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Edge-Based</strong></td>
+                      <td>Identifies boundaries via gradient discontinuities (Canny) and groups contours.</td>
+                      <td>Preserves exact boundary shapes and perimeters.</td>
+                      <td>Sensitive to noise; broken edge gaps prevent closed regions.</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Semantic (DeepLabV3)</strong></td>
+                      <td>Assigns class labels to every pixel using deep convolutional feature maps.</td>
+                      <td>Understands complex real-world multi-class scenes.</td>
+                      <td>Computationally heavy, requires pre-trained weights.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="js/app.js"></script>
+  <script src="js/labs.js"></script>
+</body>
+</html>

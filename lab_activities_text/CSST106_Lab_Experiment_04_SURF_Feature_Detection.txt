@@ -1,0 +1,87 @@
+
+College of Computer Studies
+Laboratory Exercise No. 4
+
+Topic:
+SURF feature detection in Python using OpenCV
+Week No.
+6
+Course Code:
+CSST106
+Term:
+1st Semester
+Course Title:
+Computer Vision and Perception
+Academic Year:
+2026-2027
+
+Lab Act 4: SURF feature detection in Python using OpenCV
+Objective
+To understand and implement SURF (Speeded-Up Robust Features) feature detection on images using OpenCV in Python. Students will learn the theory behind SURF, how it detects key points and descriptors, and how to visualize these features on an image.
+
+Background
+SURF is a robust local feature detector and descriptor, optimized for speed. It detects key points (important areas) in an image and generates feature descriptors that can be used for matching between images. SURF is faster than SIFT and detects blob-like features using integral images and Haar wavelet responses.
+
+Materials
+Computer with Python 3 installed
+OpenCV Library with contrib modules (for SURF)
+Sample images for testing (e.g., objects, scenes)
+
+Pre-requisites
+Basic knowledge of Python programming
+Basic understanding of image processing and features
+OpenCV installed with contrib modules (opencv-contrib-python)
+To install OpenCV with contrib modules, run:
+pip install opencv-contrib-python
+
+
+Activity Steps
+1. Import libraries and load image
+import cv2
+import numpy as np
+
+# Load an image in grayscale mode
+img = cv2.imread('sample_image.jpg', cv2.IMREAD_GRAYSCALE)
+if img is None:
+    print('Error loading image')
+
+2. Create SURF detector and detect keypoints and descriptors
+# Create SURF object with a Hessian threshold (higher threshold means fewer keypoints)
+hessian_threshold = 400
+surf = cv2.xfeatures2d.SURF_create(hessianThreshold=hessian_threshold)
+
+# Detect keypoints and descriptors
+keypoints, descriptors = surf.detectAndCompute(img, None)
+
+print(f"Number of keypoints detected: {len(keypoints)}")
+
+3. Draw keypoints on the image
+# Draw keypoints on the image with size and orientation information
+img_keypoints = cv2.drawKeypoints(img, keypoints, None, (255, 0, 0), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+
+# Show the image with keypoints
+cv2.imshow('SURF Keypoints', img_keypoints)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+
+LAB ACTIVITY
+Implement feature matching between two images using the SURF descriptors.
+Compare SURF results with ORB and SIFT on the same images.
+Explore U-SURF mode (upright SURF) for cases where orientation invariance is not needed.
+
+Notes
+SURF and SIFT are patented algorithms; OpenCV includes them in the contrib module and may require licensing for commercial use.
+If SURF is not available due to OpenCV version, ORB is a free alternative for feature detection.
+
+
+Questions for Students (on A4 Handwritten)
+What effect does changing the Hessian threshold have on the number of detected keypoints?
+What are the descriptors in SURF used for, and why are they important?
+How does SURF compare to SIFT and ORB in feature detection and speed?
+
+References:
+https://pysource.com/2018/03/21/feature-detection-sift-surf-obr-opencv-3-4-with-python-3-tutorial-25/
+https://www.youtube.com/watch?v=PBTrwymDVCg&list=PLSK7NtBWwmpR8VfRwSLrflmmthToXzTe_
+
+
