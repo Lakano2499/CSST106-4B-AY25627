@@ -76,13 +76,14 @@ csst106-cv-web-ui/
 ├── uploads/                  # Temporary uploaded images
 ├── outputs/                  # Processed images and plots
 ├── cache/                    # Cached machine learning datasets (e.g. LFW people)
-├── public/
-│   ├── index.html            # Single-Page white academic portfolio dashboard
+├── docs/                     # Static frontend root (Served by GitHub Pages & Express)
+│   ├── index.html            # Single-Page academic portfolio dashboard
+│   ├── assets/               # Sample images and demonstration result assets
 │   ├── css/
-│   │   └── styles.css        # Minimalist white theme styles (box-shadow: none, #E2E8F0 borders)
+│   │   └── styles.css        # Minimalist white & dark theme styles (box-shadow: none, #E2E8F0 borders)
 │   └── js/
-│       ├── app.js            # Accordion, search, category filters, dropzones & toasts
-│       └── labs.js           # API request handlers and dynamic result canvas renderers
+│       ├── app.js            # Full-screen tabs, theme toggles, dropzones, toasts & static fallback engine
+│       └── labs.js           # Lab parameter handlers and dynamic output canvas renderers
 └── python/
     ├── utils.py              # Shared Base64 image encoders, white Matplotlib styling, JSON I/O
     ├── lab1_images.py        # Lab 1 worker: manipulation, cropping, resizing, rotation
@@ -93,6 +94,21 @@ csst106-cv-web-ui/
     ├── lab6_yolo.py          # Lab 6 worker: YOLOv11 multi-class object detection
     └── lab7_segmentation.py  # Lab 7 worker: Otsu, Watershed, Contours & DeepLabV3
 ```
+
+---
+
+## 🌐 GitHub Pages Deployment Guide
+This repository is pre-configured to host directly via **GitHub Pages** using the `/docs` directory:
+1. Navigate to your repository on GitHub: **`https://github.com/Lakano2499/CSST106-4B-AY25627`**
+2. Click **Settings** (⚙️) > **Pages** (under the "Code and automation" section).
+3. Under **Build and deployment** > **Source**, select **`Deploy from a branch`**.
+4. Set **Branch** to **`main`** and select the **`/docs`** folder from the dropdown.
+5. Click **Save**. Your portfolio will be live at:
+   👉 **`https://lakano2499.github.io/CSST106-4B-AY25627/`**
+
+### 🔄 Dual-Mode Architecture:
+- **Local Mode (`http://localhost:3000`):** Real-time OpenCV, Scikit-Learn, and YOLOv11 execution with live Python worker processes.
+- **GitHub Pages Demo Mode (`github.io`):** Automatically detected static fallback mode providing interactive precomputed sample outputs and download capabilities with zero backend requirements.
 
 ---
 

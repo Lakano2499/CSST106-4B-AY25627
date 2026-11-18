@@ -16,14 +16,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Directory configuration
-const PUBLIC_DIR = path.join(__dirname, 'public');
+const DOCS_DIR = path.join(__dirname, 'docs');
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
 const OUTPUT_DIR = path.join(__dirname, 'outputs');
 const CACHE_DIR = path.join(__dirname, 'cache');
 const PYTHON_DIR = path.join(__dirname, 'python');
 
 // Ensure required directories exist
-[PUBLIC_DIR, UPLOAD_DIR, OUTPUT_DIR, CACHE_DIR, PYTHON_DIR].forEach((dir) => {
+[DOCS_DIR, UPLOAD_DIR, OUTPUT_DIR, CACHE_DIR, PYTHON_DIR].forEach((dir) => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
@@ -87,7 +87,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Static file serving
-app.use(express.static(PUBLIC_DIR));
+app.use(express.static(DOCS_DIR));
 app.use('/outputs', express.static(OUTPUT_DIR));
 app.use('/uploads', express.static(UPLOAD_DIR));
 
@@ -536,7 +536,7 @@ const server = app.listen(PORT, () => {
   console.log('====================================================');
   console.log(' CSST106 Computer Vision Lab Dashboard Server');
   console.log(` Running at: http://localhost:${PORT}`);
-  console.log(` Static files: ${PUBLIC_DIR}`);
+  console.log(` Static files: ${DOCS_DIR}`);
   console.log(` Upload directory: ${UPLOAD_DIR}`);
   console.log(` Output directory: ${OUTPUT_DIR}`);
   console.log(` Cache directory:  ${CACHE_DIR}`);

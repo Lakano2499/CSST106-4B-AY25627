@@ -7,6 +7,201 @@
   'use strict';
 
   // =========================================================================
+  // 0. Automatic GitHub Pages Detection & Static Fallback Configuration
+  // =========================================================================
+  const IS_GITHUB_PAGES = window.location.hostname.includes('github.io') ||
+                          window.location.protocol === 'file:' ||
+                          window.location.search.includes('demo=true');
+
+  function getStaticFallbackResponse(endpoint, data) {
+    let action = 'all';
+    if (data instanceof FormData) {
+      action = data.get('action') || 'all';
+    } else if (data && typeof data === 'object') {
+      action = data.action || 'all';
+    }
+
+    if (endpoint.includes('/api/lab1')) {
+      return {
+        success: true,
+        action: action,
+        properties: {
+          height: 384,
+          width: 512,
+          channels: 3,
+          dtype: 'uint8',
+          total_pixels: 196608,
+          color_space: 'BGR'
+        },
+        bgr_inspection: [
+          { coord: [50, 50], bgr: [124, 152, 189], rgb: [189, 152, 124] },
+          { coord: [100, 100], bgr: [45, 88, 210], rgb: [210, 88, 45] },
+          { coord: [150, 150], bgr: [82, 134, 95], rgb: [95, 134, 82] }
+        ],
+        outputs: {
+          original: './assets/sample_results/original.png',
+          bgr_channels: './assets/sample_results/original.png',
+          grayscale: './assets/sample_results/grayscale.png',
+          cropped: './assets/sample_results/cropped.png',
+          resized: './assets/sample_results/resized.png',
+          rotated: './assets/sample_results/rotated.png'
+        }
+      };
+    }
+
+    if (endpoint.includes('/api/lab2')) {
+      return {
+        success: true,
+        kernel_size: 5,
+        low_threshold: 50,
+        high_threshold: 150,
+        metrics: {
+          input_shape: "384x512",
+          gaussian_kernel: "5x5",
+          canny_thresholds: "50 / 150",
+          sobel_operator: "Sobel-Feldman",
+          edges_detected_pct: "8.42%"
+        },
+        outputs: {
+          original: './assets/sample_results/original.png',
+          smoothed: './assets/sample_results/blurred.png',
+          sobel_x: './assets/sample_results/sobel_x.png',
+          sobel_y: './assets/sample_results/sobel_y.png',
+          sobel_magnitude: './assets/sample_results/sobel_combined.png',
+          canny: './assets/sample_results/canny.png'
+        }
+      };
+    }
+
+    if (endpoint.includes('/api/lab3')) {
+      return {
+        success: true,
+        alpha: 1.5,
+        beta: 20,
+        clip_limit: 2.0,
+        grid_size: [8, 8],
+        metrics: {
+          contrast_alpha: 1.5,
+          brightness_beta: 20,
+          clahe_clip_limit: 2.0,
+          clahe_tile_grid: "8x8",
+          dynamic_range: "0-255"
+        },
+        outputs: {
+          original: './assets/sample_results/original.png',
+          linear: './assets/sample_results/linear_contrast.png',
+          global_equalization: './assets/sample_results/global_equalized.png',
+          clahe: './assets/sample_results/clahe.png'
+        },
+        plot: './assets/sample_results/global_equalized.png'
+      };
+    }
+
+    if (endpoint.includes('/api/lab4')) {
+      return {
+        success: true,
+        method: 'ORB',
+        keypoints_count: 500,
+        descriptor_dim: 32,
+        matches_count: 248,
+        execution_time_ms: 18.4,
+        metrics: {
+          algorithm: "ORB (Oriented FAST and Rotated BRIEF)",
+          keypoints_detected: 500,
+          descriptor_dimension: 32,
+          good_matches: 248,
+          matching_distance: "Hamming"
+        },
+        outputs: {
+          keypoints: './assets/sample_results/keypoints.png',
+          matches: './assets/sample_results/matches.png'
+        }
+      };
+    }
+
+    if (endpoint.includes('/api/lab5')) {
+      return {
+        success: true,
+        n_components: 150,
+        whiten: true,
+        variance_explained: 0.9084,
+        accuracy: 0.842,
+        eigenfaces_gallery: './assets/sample_results/lab5_eigenfaces.png',
+        variance_curve: './assets/sample_results/lab5_variance_curve.png',
+        failure_gallery: './assets/sample_results/lab5_failure_analysis.png',
+        metrics: {
+          dataset: "Labeled Faces in the Wild (LFW)",
+          classes: "7 Target Individuals",
+          principal_components: 150,
+          cumulative_variance: "90.84%",
+          svm_test_accuracy: "84.2%"
+        },
+        classification_report: `                   precision    recall  f1-score   support
+
+     Ariel Sharon       0.83      0.77      0.80        13
+     Colin Powell       0.82      0.88      0.85        60
+  Donald Rumsfeld       0.85      0.78      0.81        27
+    George W Bush       0.88      0.91      0.89       133
+Gerhard Schroeder       0.81      0.79      0.80        28
+      Hugo Chavez       0.85      0.73      0.79        15
+       Tony Blair       0.83      0.81      0.82        36
+
+         accuracy                           0.84       312
+        macro avg       0.84      0.81      0.82       312
+     weighted avg       0.85      0.84      0.84       312`
+      };
+    }
+
+    if (endpoint.includes('/api/lab6')) {
+      return {
+        success: true,
+        model: 'yolo11n',
+        confidence_threshold: 0.25,
+        inference_time_ms: 14.8,
+        total_detections: 3,
+        annotated_image: './assets/sample_results/yolo11_1794999357701-images.jpg',
+        detections: [
+          { class_name: 'person', confidence: 0.89, bbox: [120, 45, 290, 360] },
+          { class_name: 'laptop', confidence: 0.84, bbox: [210, 200, 340, 310] },
+          { class_name: 'cup', confidence: 0.72, bbox: [350, 240, 390, 300] }
+        ],
+        metrics: {
+          model_architecture: "YOLOv11 Nano (PyTorch)",
+          total_detected_objects: 3,
+          classes_detected: "person, laptop, cup",
+          latency_preprocess: "1.2 ms",
+          latency_inference: "14.8 ms",
+          latency_postprocess: "1.5 ms"
+        }
+      };
+    }
+
+    if (endpoint.includes('/api/lab7')) {
+      return {
+        success: true,
+        metrics: {
+          input_dimensions: "384x512",
+          otsu_threshold_value: 128,
+          watershed_markers_count: 14,
+          contours_detected_count: 22,
+          semantic_model: "DeepLabV3-ResNet50"
+        },
+        outputs: {
+          original: './assets/sample_results/original.png',
+          threshold_otsu: './assets/sample_results/threshold_otsu.png',
+          threshold_adaptive: './assets/sample_results/threshold_adaptive.png',
+          watershed: './assets/sample_results/watershed.png',
+          contours: './assets/sample_results/contours.png',
+          semantic: './assets/sample_results/semantic.png'
+        },
+        comparison_plot: './assets/sample_results/comparison_plot.png'
+      };
+    }
+
+    return { success: true };
+  }
+
+  // =========================================================================
   // 1. Toast Notification System
   // =========================================================================
   function showToast(message, type = 'info', duration = 4000) {
@@ -199,9 +394,15 @@
   }
 
   // =========================================================================
-  // 4. API Communication Helper (with AbortController for Cancellation)
+  // 4. API Communication Helper (with AbortController & Static Fallback)
   // =========================================================================
   async function apiCall(endpoint, data) {
+    if (IS_GITHUB_PAGES) {
+      // Simulate realistic processing time and return static precomputed response
+      await new Promise(r => setTimeout(r, 450));
+      return getStaticFallbackResponse(endpoint, data);
+    }
+
     activeAbortController = new AbortController();
 
     const isFormData = data instanceof FormData;
@@ -827,7 +1028,8 @@
     confirmCancelAnalysis,
     downloadQACompilation,
     copyQAToClipboard,
-    copyLabQA
+    copyLabQA,
+    IS_GITHUB_PAGES
   };
 
   window.switchLab = switchLab;
@@ -843,6 +1045,18 @@
   document.addEventListener('DOMContentLoaded', () => {
     // Initialize Dark/Light Theme
     initTheme();
+
+    // Check if running on GitHub Pages / Static Demo Mode
+    if (IS_GITHUB_PAGES) {
+      console.log('[CSST106] Running in GitHub Pages static demo mode.');
+      const studentBadge = document.querySelector('.student-badge');
+      if (studentBadge) {
+        studentBadge.title = 'GitHub Pages Static Demo Mode (Interactive samples active)';
+      }
+      setTimeout(() => {
+        showToast('Static Demo Mode (GitHub Pages): Precomputed interactive samples are active. Run locally with Node.js & Python for live processing.', 'info', 6000);
+      }, 500);
+    }
 
     // Restore saved lab or hash if present
     const hash = window.location.hash.replace('#', '');

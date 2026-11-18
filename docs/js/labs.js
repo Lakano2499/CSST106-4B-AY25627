@@ -124,6 +124,10 @@
         return input.files[0];
       }
     }
+    if (window.App && window.App.IS_GITHUB_PAGES) {
+      // In GitHub Pages demo mode, provide a sample fallback File if user hasn't uploaded one
+      return new File(["sample_placeholder"], "sample.jpg", { type: "image/jpeg" });
+    }
     return null;
   }
 
@@ -146,7 +150,7 @@
   function formatImageSrc(src) {
     if (!src) return '';
     if (typeof src !== 'string') return '';
-    if (src.startsWith('data:') || src.startsWith('http://') || src.startsWith('https://') || src.startsWith('/')) {
+    if (src.startsWith('data:') || src.startsWith('http://') || src.startsWith('https://') || src.startsWith('/') || src.startsWith('./') || src.startsWith('assets/')) {
       return src;
     }
     return `data:image/png;base64,${src}`;
