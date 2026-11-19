@@ -312,7 +312,7 @@ Gerhard Schroeder       0.81      0.79      0.80        28
       }
     }
 
-    async loadSample(sampleNum = 1) {
+    async loadSample(sampleNum = 1, silent = false) {
       const filename = sampleNum === 2 ? 'sample2.jpg' : 'sample1.jpg';
       const url = `./assets/${filename}`;
       try {
@@ -321,11 +321,10 @@ Gerhard Schroeder       0.81      0.79      0.80        28
         const blob = await response.blob();
         const file = new File([blob], filename, { type: 'image/jpeg' });
         this.handleFile(file);
-        showToast(`Loaded Sample ${sampleNum} (${filename}) into workspace.`, 'success', 2500);
+        if (!silent) showToast(`Loaded Sample ${sampleNum} (${filename}) into workspace.`, 'success', 2500);
       } catch (err) {
         // Fallback using Canvas
         const img = new Image();
-        img.crossOrigin = 'anonymous';
         img.onload = () => {
           const c = document.createElement('canvas');
           c.width = img.naturalWidth || img.width;
@@ -336,12 +335,12 @@ Gerhard Schroeder       0.81      0.79      0.80        28
             if (blob) {
               const file = new File([blob], filename, { type: 'image/jpeg' });
               this.handleFile(file);
-              showToast(`Loaded Sample ${sampleNum} (${filename}) into workspace.`, 'success', 2500);
+              if (!silent) showToast(`Loaded Sample ${sampleNum} (${filename}) into workspace.`, 'success', 2500);
             }
           }, 'image/jpeg');
         };
         img.onerror = () => {
-          showToast(`Failed to load ${filename}`, 'error');
+          if (!silent) showToast(`Failed to load ${filename}`, 'error');
         };
         img.src = url;
       }
@@ -453,11 +452,72 @@ Gerhard Schroeder       0.81      0.79      0.80        28
   }
 
   // Global helper to load Sample 1 or Sample 2 into any DropZone
-  async function loadSampleImage(targetSelector, sampleNum = 1) {
+  async function loadSampleImage(targetSelector, sampleNum = 1, silent = false) {
     const el = typeof targetSelector === 'string' ? document.querySelector(targetSelector) : targetSelector;
     if (!el) return;
     const dz = el.__dropzone || new DropZone(el);
-    await dz.loadSample(sampleNum);
+    await dz.loadSample(sampleNum, silent);
+  }
+
+  async function ensureLabSampleInitialized(labId) {
+    if (!IS_GITHUB_PAGES && !window.USE_CANVAS_CV) return;
+
+    try {
+      if (labId === 'lab1') {
+        const el = document.querySelector('#lab1-dropzone');
+        if (el && (!el.__dropzone || !el.__dropzone.hasFile())) {
+          await loadSampleImage('#lab1-dropzone', 1, true);
+        } else if (!document.querySelector('#lab1-results .results-title')) {
+          document.getElementById('lab1-full-analysis')?.click();
+        }
+      } else if (labId === 'lab2') {
+        const el = document.querySelector('#lab2-dropzone');
+        if (el && (!el.__dropzone || !el.__dropzone.hasFile())) {
+          await loadSampleImage('#lab2-dropzone', 1, true);
+        } else if (!document.querySelector('#lab2-results .results-title')) {
+          document.getElementById('lab2-process')?.click();
+        }
+      } else if (labId === 'lab3') {
+        const el = document.querySelector('#lab3-dropzone');
+        if (el && (!el.__dropzone || !el.__dropzone.hasFile())) {
+          await loadSampleImage('#lab3-dropzone', 1, true);
+        } else if (!document.querySelector('#lab3-results .results-title')) {
+          document.getElementById('lab3-process')?.click();
+        }
+      } else if (labId === 'lab4') {
+        const el1 = document.querySelector('#lab4-dropzone1');
+        const el2 = document.querySelector('#lab4-dropzone2');
+        if (el1 && (!el1.__dropzone || !el1.__dropzone.hasFile())) {
+          await loadSampleImage('#lab4-dropzone1', 1, true);
+        }
+        if (el2 && (!el2.__dropzone || !el2.__dropzone.hasFile())) {
+          await loadSampleImage('#lab4-dropzone2', 2, true);
+        }
+        if (!document.querySelector('#lab4-results .results-title')) {
+          document.getElementById('lab4-process')?.click();
+        }
+      } else if (labId === 'lab5') {
+        if (!document.querySelector('#lab5-results .results-title')) {
+          document.getElementById('lab5-train')?.click();
+        }
+      } else if (labId === 'lab6') {
+        const el = document.querySelector('#lab6-dropzone');
+        if (el && (!el.__dropzone || !el.__dropzone.hasFile())) {
+          await loadSampleImage('#lab6-dropzone', 1, true);
+        } else if (!document.querySelector('#lab6-results .results-title')) {
+          document.getElementById('lab6-process')?.click();
+        }
+      } else if (labId === 'lab7') {
+        const el = document.querySelector('#lab7-dropzone');
+        if (el && (!el.__dropzone || !el.__dropzone.hasFile())) {
+          await loadSampleImage('#lab7-dropzone', 1, true);
+        } else if (!document.querySelector('#lab7-results .results-title')) {
+          document.getElementById('lab7-process')?.click();
+        }
+      }
+    } catch (e) {
+      console.warn('[AutoInit] Could not auto-initialize sample for ' + labId, e);
+    }
   }
 
   function triggerActiveLabProcess() {
@@ -601,6 +661,13 @@ Gerhard Schroeder       0.81      0.79      0.80        28
 
     // Scroll smoothly to top of view
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Auto-ensure default sample is loaded and processed if workspace is empty
+    if (IS_GITHUB_PAGES || window.USE_CANVAS_CV) {
+      setTimeout(() => {
+        ensureLabSampleInitialized(labId);
+      }, 50);
+    }
   }
 
   // =========================================================================
@@ -1156,6 +1223,7 @@ Gerhard Schroeder       0.81      0.79      0.80        28
   window.App = {
     DropZone,
     loadSampleImage,
+    ensureLabSampleInitialized,
     showToast,
     showLoading,
     hideLoading,
@@ -1175,6 +1243,7 @@ Gerhard Schroeder       0.81      0.79      0.80        28
   };
 
   window.loadSampleImage = loadSampleImage;
+  window.ensureLabSampleInitialized = ensureLabSampleInitialized;
   window.switchLab = switchLab;
   window.downloadLabResults = downloadLabResults;
   window.toggleTheme = toggleTheme;
@@ -1209,6 +1278,12 @@ Gerhard Schroeder       0.81      0.79      0.80        28
     const saved = localStorage.getItem('active_lab');
     const initialLab = (hash && document.getElementById(hash)) ? hash : (saved && document.getElementById(saved)) ? saved : 'lab1';
     switchLab(initialLab);
+
+    if (IS_GITHUB_PAGES || window.USE_CANVAS_CV) {
+      setTimeout(() => {
+        ensureLabSampleInitialized(initialLab);
+      }, 100);
+    }
   });
 
 })();

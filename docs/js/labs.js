@@ -112,21 +112,30 @@
     if (dzInstance) {
       if (typeof dzInstance.getFile === 'function') {
         const file = dzInstance.getFile();
-        if (file) return file;
+        if (file && (typeof file === 'string' || (file instanceof Blob && file.size > 50))) {
+          return file;
+        }
       }
-      if (dzInstance.file) return dzInstance.file;
-      if (dzInstance.files && dzInstance.files.length > 0) return dzInstance.files[0];
+      if (dzInstance.currentFile && (typeof dzInstance.currentFile === 'string' || dzInstance.currentFile.size > 50)) {
+        return dzInstance.currentFile;
+      }
+      if (dzInstance.file && dzInstance.file.size > 50) return dzInstance.file;
+      if (dzInstance.files && dzInstance.files.length > 0 && dzInstance.files[0].size > 50) return dzInstance.files[0];
     }
     const container = typeof selector === 'string' ? document.querySelector(selector) : selector;
     if (container) {
       const input = container.querySelector('input[type="file"]');
-      if (input && input.files && input.files.length > 0) {
+      if (input && input.files && input.files.length > 0 && input.files[0].size > 50) {
         return input.files[0];
       }
+      const preview = container.querySelector('.dropzone-preview');
+      if (preview && preview.src && preview.src.length > 20 && !preview.src.startsWith('data:,')) {
+        return preview.src;
+      }
     }
-    if (window.App && window.App.IS_GITHUB_PAGES) {
-      // In GitHub Pages demo mode, provide a sample fallback File if user hasn't uploaded one
-      return new File(["sample_placeholder"], "sample.jpg", { type: "image/jpeg" });
+    if (window.App && (window.App.IS_GITHUB_PAGES || window.USE_CANVAS_CV)) {
+      // In GitHub Pages demo mode, provide standard sample image as valid source
+      return './assets/sample1.jpg';
     }
     return null;
   }
